@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- stateDescription for toggles, read by TalkBack -->
+    <string name="yumi_state_on">On</string>
+    <string name="yumi_state_off">Off</string>
+    <string name="yumi_state_checked">Checked</string>
+    <string name="yumi_state_unchecked">Not checked</string>
+    <string name="yumi_state_indeterminate">Partially checked</string>
+    <string name="yumi_state_selected">Selected</string>
+    <string name="yumi_state_not_selected">Not selected</string>
+    <string name="yumi_dismiss">Dismiss</string>
+    <string name="yumi_toast_pane">Notification</string>
+    <string name="yumi_dialog_pane">Dialog</string>
+    <string name="yumi_sheet_pane">Bottom sheet</string>
+    <string name="yumi_sheet_handle">Drag handle</string>
+    <string name="yumi_ok">OK</string>
+    <string name="yumi_cancel">Cancel</string>
+    <string name="yumi_set_time">Set time</string>
+    <string name="yumi_select_date">Select date</string>
+    <string name="yumi_hours">Hours</string>
+    <string name="yumi_minutes">Minutes</string>
+    <string name="yumi_show_password">Show</string>
+    <string name="yumi_hide_password">Hide</string>
+    <string name="yumi_search">Search</string>
+    <string name="yumi_clear">Clear</string>
+    <string name="yumi_increase">Increase</string>
+    <string name="yumi_decrease">Decrease</string>
+    <string name="yumi_remove">Remove</string>
+    <string name="yumi_range_start">Range start</string>
+    <string name="yumi_range_end">Range end</string>
+    <string name="yumi_delete">Delete</string>
+    <string name="yumi_more_options">More options</string>
+    <string name="yumi_expanded">Expanded</string>
+    <string name="yumi_collapsed">Collapsed</string>
+    <string name="yumi_expand">Expand</string>
+    <string name="yumi_collapse">Collapse</string>
+    <string name="yumi_move_up">Move up</string>
+    <string name="yumi_move_down">Move down</string>
+    <string name="yumi_reorder_handle">Reorder</string>
+    <string name="yumi_page_of">Page %1$d of %2$d</string>
+    <string name="yumi_rating_of">%1$d of %2$d</string>
+    <string name="yumi_star_n">%1$d stars</string>
+    <string name="yumi_select_dates">Select dates</string>
+    <string name="yumi_open_menu">Open menu</string>
+    <string name="yumi_close_sheet">Close</string>
+    <string name="yumi_new_count">%1$d new</string>
+    <string name="yumi_new">New</string>
+    <string name="yumi_loading">Loading</string>
+    <string name="yumi_refresh">Refresh</string>
+</resources>

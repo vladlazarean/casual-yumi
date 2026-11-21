@@ -1,0 +1,54 @@
+[versions]
+# Library version. Bumped on release; consumed by the publishing convention plugin.
+yumi = "0.0.9"
+
+agp = "9.5.1"
+kotlin = "2.4.0"
+# BOM 2026.08.00 = Compose 1.12.0 / Material 3 1.4.0. Compose 1.12 requires compileSdk 37 and AGP >= 9.1.2.
+composeBom = "2026.08.00"
+activityCompose = "1.13.0"
+junit = "4.13.2"
+roborazzi = "1.66.0"
+# 4.16.x runs tests up to SDK 36 and needs JDK 21 for that level. Tests pin @Config(sdk = [36]).
+robolectric = "4.16.1"
+
+compileSdk = "37"
+minSdk = "24"
+targetSdk = "37"
+
+[libraries]
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-ui-unit = { group = "androidx.compose.ui", name = "ui-unit" }
+compose-ui-text = { group = "androidx.compose.ui", name = "ui-text" }
+compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+compose-animation-core = { group = "androidx.compose.animation", name = "animation-core" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+
+# build-logic only
+android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradle-plugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+
+# Convention plugins (build-logic)
+yumi-android-library = { id = "yumi.android.library" }
+yumi-android-application = { id = "yumi.android.application" }
+yumi-publishing = { id = "yumi.publishing" }

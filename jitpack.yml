@@ -1,0 +1,9 @@
+# JitPack builds a tag on the first request for it and serves the result as
+# com.github.vladlazarean.casual-yumi:<module>:<tag>. See RELEASING.md.
+jdk:
+  - openjdk21
+before_install:
+  # Accept SDK licences so AGP can download the compileSdk 37 platform if the image lacks it.
+  - yes | sdkmanager --licenses > /dev/null || true
+install:
+  - ./gradlew publishToMavenLocal --no-configuration-cache

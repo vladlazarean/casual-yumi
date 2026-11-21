@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casual Yumi</title>
+<meta name="description" content="Matte, soft-touch Jetpack Compose components modelled on a TV remote. Every component, live.">
+<meta name="theme-color" content="#E4E1DC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E1F21" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='18' fill='%23D6D2CB' stroke='%23B9B4AC' stroke-width='2'/%3E%3Crect x='20' y='29' width='24' height='7' rx='3.5' fill='%23E8772E'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Casual Yumi: Compose components modelled on a TV remote">
+<meta property="og:description" content="Matte, soft-touch Jetpack Compose components with one orange key. Press every one of the 76 parts.">
+<meta property="og:url" content="https://vladlazarean.github.io/casual-yumi/">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Values mirror yumi-tokens (YumiTokens.kt, YumiAccent.kt). */
+:root {
+  --body: #E4E1DC; --raised: #D6D2CB; --tray: #CFCBC4; --seat: #B9B4AC;
+  --ink: #2B2A28; --muted: #55514B; --charcoal: #2E3033; --on-charcoal: #ECE9E4;
+  --accent: #E8772E; --on-accent: #2B2A28; --accent-ink: #8A3B0E; --error: #A8322A;
+  --shadow: rgba(0,0,0,.18); --highlight: rgba(255,255,255,.60);
+  --press-inset: rgba(0,0,0,.22); --tray-inset: rgba(0,0,0,.14); --scrim: rgba(30,31,33,.45);
+  --sink: 1.5px; --spring: cubic-bezier(.3,1.4,.5,1);
+  --r-button: 24px; --r-card: 28px; --r-tray: 32px; --r-small: 12px;
+  color-scheme: light;
+}
+:root[data-theme="graphite"] {
+  --body: #1E1F21; --raised: #2C2D30; --tray: #18191A; --seat: #3A3B3F;
+  --ink: #ECE9E4; --muted: #A29E97; --charcoal: #ECE9E4; --on-charcoal: #1E1F21; --error: #F2A49C;
+  --on-accent: #1E1F21;
+  --shadow: rgba(0,0,0,.45); --highlight: rgba(255,255,255,.06);
+  --press-inset: rgba(0,0,0,.45); --tray-inset: rgba(0,0,0,.35); --scrim: rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scrollbar-color: var(--seat) var(--body); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0ms !important; animation: none !important; } }
+::selection { background: var(--accent); color: var(--on-accent); }
+body { margin: 0; background: var(--body); color: var(--ink); caret-color: var(--accent-ink); font: 500 16px/1.6 Manrope, system-ui, sans-serif; transition: background .35s, color .35s; }
+a { color: var(--accent-ink); text-underline-offset: 3px; text-decoration-thickness: 1.5px; font-weight: 700; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+h1 { font-size: clamp(40px, 7vw, 68px); line-height: 1; margin: 0 0 16px; font-weight: 800; letter-spacing: -.035em; }
+h2 { font-size: clamp(26px, 3.4vw, 34px); line-height: 1.15; margin: 0 0 12px; font-weight: 800; letter-spacing: -.02em; text-wrap: balance; }
+h3 { font-size: 20px; margin: 0 0 16px; font-weight: 800; letter-spacing: -.01em; }
+p { margin: 0; }
+.lede { font-size: 19px; color: var(--muted); max-width: 46ch; }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+svg.i.s { width: 18px; height: 18px; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 3px; }
+
+/* ---------- material ---------- */
+.pebble { -webkit-appearance: none; appearance: none; font: inherit; color: var(--ink); background: var(--raised); border: 1px solid var(--seat); border-radius: var(--r-button);
+  min-height: 48px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent; text-decoration: none; box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight);
+  transition: transform 140ms var(--spring), box-shadow 140ms, background .35s, color .2s; }
+.pebble:active, .pebble.is-down, .pebble[aria-pressed="true"], .pebble[aria-expanded="true"].sinks { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.pebble.primary { min-height: 56px; }
+.pebble.small { min-height: 40px; padding: 0 16px; font-size: 14px; border-radius: 16px; }
+.pebble.accent { background: var(--accent); color: var(--on-accent); border-color: color-mix(in srgb, var(--accent) 82%, #000); }
+.pebble.charcoal { background: var(--charcoal); color: var(--on-charcoal); border-color: var(--charcoal); }
+.pebble:disabled { cursor: default; color: color-mix(in srgb, var(--ink) 38%, transparent); background: var(--raised); border-color: var(--seat); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.pebble.round { width: 56px; height: 56px; padding: 0; border-radius: 50%; }
+.pebble.round.mid { width: 48px; height: 48px; }
+.pebble.text { background: transparent; border-color: transparent; box-shadow: none; padding: 0 14px; }
+.pebble.text:active { background: var(--tray); box-shadow: inset 0 2px 6px var(--press-inset); }
+.pebble[aria-pressed="true"] .label, .pebble[aria-pressed="true"] > svg { color: var(--accent-ink); }
+.tray { background: var(--tray); border-radius: var(--r-tray); box-shadow: inset 0 3px 10px var(--tray-inset); transition: background .35s; }
+.card { background: var(--raised); border: 1px solid var(--seat); border-radius: var(--r-card); padding: 20px; box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); transition: background .35s, transform 140ms var(--spring), box-shadow 140ms; }
+.card .pebble { box-shadow: none; }
+.card .pebble:active { box-shadow: inset 0 2px 6px var(--press-inset); }
+button.card { font: inherit; color: inherit; text-align: left; cursor: pointer; width: 100%; }
+button.card:active { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.led { display: inline-block; width: 18px; height: 5px; border-radius: 3px; background: var(--seat); transition: background .16s; flex: none; }
+.led.on { background: var(--accent); }
+
+/* Touch area: small controls keep their drawn size but get a 48 px hit area, like
+   minimumInteractiveComponentSize() does in the library. */
+.pebble.small, .chip, .copy, .chip .x, .fbox .ghost, .toastpill button, .snack button, .handle, .grabwrap, .brand, .key.toggle:has(.mini), .stars button, .swatch, .seg.small button { position: relative; }
+.pebble.small::after, .chip::after, .copy::after, .chip .x::after, .fbox .ghost::after, .toastpill button::after, .snack button::after, .handle::after, .grabwrap::after, .brand::after, .key.toggle:has(.mini)::after, .stars button::after, .swatch::after, .seg.small button::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 48px); height: max(100%, 48px); transform: translate(-50%, -50%); }
+.chip:has(.x)::after { display: none; }
+
+/* ---------- header ---------- */
+.top { display: flex; flex-wrap: wrap; gap: 18px 24px; align-items: center; justify-content: space-between; padding: 20px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.swatches { display: flex; gap: 12px; }
+.swatch { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--seat); cursor: pointer; padding: 0; background: var(--raised); display: grid; place-items: center;
+  box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); transition: transform 140ms var(--spring), box-shadow 140ms; }
+.swatch i { width: 14px; height: 14px; border-radius: 50%; display: block; }
+.swatch[aria-checked="true"] { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+
+/* ---------- hero: the remote ---------- */
+.leaflet { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 40px 56px; align-items: center; padding: 24px 0 72px; }
+@media (max-width: 900px) { .leaflet { grid-template-columns: 1fr; } }
+.story { display: grid; gap: 18px; }
+.story .tale { max-width: 52ch; }
+.story .tale em { font-style: normal; color: var(--accent-ink); font-weight: 700; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.diagram { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; }
+@media (max-width: 520px) { .diagram { grid-template-columns: 1fr; justify-items: center; } }
+.remote { position: relative; width: 216px; background: var(--raised); border: 1px solid var(--seat); border-radius: 108px; padding: 14px 18px 130px;
+  box-shadow: 0 18px 40px var(--shadow), 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); display: grid; gap: 18px; justify-items: center; transition: background .35s; }
+.well { position: relative; width: 180px; height: 180px; border-radius: 50%; display: grid; place-items: center; }
+.ring { position: absolute; inset: 14px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight);
+  touch-action: none; cursor: grab; transition: background .35s; }
+.ring.dragging { cursor: grabbing; }
+.ring svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.ring path { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; }
+.okkey { position: relative; z-index: 1; width: 68px; height: 68px; border-radius: 50%; padding: 0; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.keygrid { display: grid; grid-template-columns: repeat(2, 56px); gap: 14px 26px; }
+.keygrid .pair { width: 60px; height: 60px; margin: -2px; padding: 0; border-radius: 50%; font-size: 13px; font-weight: 800; }
+.keygrid .pair[aria-checked="true"] { color: var(--accent-ink); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.keygrid .pebble[aria-pressed="true"] { color: var(--accent-ink); }
+.bottomrow { display: flex; align-items: center; gap: 22px; margin-top: 10px; padding: 8px 14px; border-radius: 26px; }
+.bottomrow .pebble.round { width: 44px; height: 44px; }
+.bottomrow .pebble.round svg { width: 18px; height: 18px; }
+.statusled { width: 16px; height: 5px; border-radius: 3px; }
+.parts { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; counter-reset: part; }
+.parts li { counter-increment: part; }
+.parts button { display: grid; grid-template-columns: 30px 1fr; gap: 2px 12px; align-items: center; width: 100%; text-align: left; background: none; border: 0; padding: 7px 10px;
+  border-radius: 16px; font: inherit; color: var(--ink); cursor: default; }
+.parts button::before { content: counter(part); grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12.5px; font-weight: 800;
+  background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 2px 4px var(--shadow); transition: .14s; }
+.parts b { font-weight: 800; font-size: 15px; }
+.parts code { color: var(--muted); font-size: 12.5px; }
+.parts button:hover, .parts button:focus-visible, .parts button.lit { background: color-mix(in srgb, var(--raised) 70%, transparent); }
+.parts button:hover::before, .parts button:focus-visible::before, .parts button.lit::before { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+[data-part].spot { outline: 2px solid var(--accent-ink); outline-offset: 4px; }
+
+/* ---------- sections ---------- */
+section.block { padding: 72px 0; border-top: 1px solid var(--seat); }
+.block-head { display: grid; gap: 8px; margin-bottom: 32px; max-width: 64ch; }
+.block-head p { color: var(--muted); }
+.steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; max-width: 820px; }
+.step { min-width: 0; }
+.step-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 10px 4px; }
+.step-head h3 { margin: 0; font-size: 17px; }
+.snippet { padding: 20px 22px; border-radius: 24px; overflow: auto; }
+.snippet pre { margin: 0; line-height: 1.6; white-space: pre; }
+.snippet .k { color: var(--accent-ink); font-weight: 700; }
+.copy { min-height: 40px; padding: 0 14px; font-size: 13px; border-radius: 14px; }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.rule { display: grid; grid-template-rows: 132px auto auto; gap: 10px; }
+.rule .demo { display: flex; align-items: center; justify-content: center; gap: 14px; border-radius: 24px; background: color-mix(in srgb, var(--body) 55%, var(--raised)); padding: 16px; }
+.rule h3 { font-size: 17px; margin: 0; }
+.rule p { color: var(--muted); font-size: 15px; }
+
+/* ---------- catalog ---------- */
+.group { margin-top: 56px; }
+.group:first-of-type { margin-top: 0; }
+.cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.cell { background: color-mix(in srgb, var(--body) 55%, var(--raised)); border-radius: var(--r-card); padding: 20px; display: grid; gap: 14px; align-content: space-between; min-width: 0; }
+.cell .demo { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; min-width: 0; }
+.cell .demo.col { flex-direction: column; align-items: stretch; }
+.cell > .name { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 3.1em; color: var(--muted); }
+.cell > .name code { font-size: 12.5px; }
+.cell > .name .codes { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+
+/* checkbox / radio / switch */
+.key { -webkit-appearance: none; appearance: none; border: 0; padding: 0; background: none; cursor: pointer; color: var(--ink); font: inherit; font-weight: 600; display: inline-flex; align-items: center; gap: 14px; border-radius: 14px; }
+.box { position: relative; width: 48px; height: 48px; border-radius: 14px; background: var(--raised); border: 1px solid var(--seat); display: grid; place-items: center; box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); transition: transform 140ms var(--spring), box-shadow 140ms, background .35s; flex: none; }
+.box svg { grid-area: 1 / 1; width: 22px; height: 22px; stroke: var(--accent-ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+.key[aria-checked="true"] .box, .key[aria-checked="mixed"] .box { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); background: var(--tray); }
+.key[aria-checked="true"] .box .yes, .key[aria-checked="mixed"] .box .part { opacity: 1; transform: scale(1); }
+.key.radio .box { border-radius: 50%; }
+.key.radio .box i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); opacity: 0; transform: scale(.4); transition: .15s; }
+.key.radio[aria-checked="true"] .box i { opacity: 1; transform: scale(1); }
+.switch { width: 104px; height: 60px; border-radius: 30px; background: var(--tray); box-shadow: inset 0 3px 10px var(--tray-inset); position: relative; transition: background .35s; flex: none; }
+.switch .knob { position: absolute; top: 6px; left: 6px; width: 48px; height: 48px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat);
+  box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); display: grid; place-items: center; transition: left 240ms var(--spring), background .35s; }
+.switch .knob .led { width: 16px; }
+.key[aria-checked="true"] .switch .knob { left: 50px; }
+.key[aria-checked="true"] .switch .knob .led { background: var(--accent); }
+.switch.mini { width: 72px; height: 42px; border-radius: 21px; }
+.switch.mini .knob { top: 4px; left: 4px; width: 34px; height: 34px; }
+.switch.mini .knob .led { width: 12px; }
+.key[aria-checked="true"] .switch.mini .knob { left: 34px; }
+.indent { padding-left: 28px; display: grid; gap: 8px; }
+
+/* segments, chips */
+.seg { display: flex; gap: 6px; width: 100%; }
+.seg button { flex: 1; min-height: 48px; min-width: 0; font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; padding: 0 8px; background: var(--raised); border: 1px solid var(--seat); border-radius: 8px;
+  box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); transition: transform 140ms var(--spring), box-shadow 140ms, background .35s; }
+.seg button:first-child { border-radius: 24px 8px 8px 24px; }
+.seg button:last-child { border-radius: 8px 24px 24px 8px; }
+.seg button[aria-checked="true"], .seg button[aria-pressed="true"] { color: var(--accent-ink); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.seg.small button { min-height: 40px; font-size: 14px; }
+.seg.days { gap: 4px; }
+.seg.days button { padding: 0; font-size: 14px; }
+.chip { min-height: 40px; padding: 0 14px; border-radius: var(--r-small); font-size: 14px; gap: 8px; }
+.chip .tick { display: none; color: var(--accent-ink); }
+.chip[aria-pressed="true"] .tick { display: block; }
+.chip:has(.x) { padding: 0 8px 0 14px; gap: 2px; }
+.chip .x { background: none; border: 0; padding: 0; margin: 0; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); cursor: pointer; }
+
+/* sliders */
+.slider { width: 100%; -webkit-appearance: none; appearance: none; height: 56px; background: transparent; cursor: pointer; margin: 0; }
+.slider::-webkit-slider-runnable-track { height: 20px; border-radius: 10px; box-shadow: inset 0 2px 5px var(--tray-inset); background: linear-gradient(to right, var(--accent) 0 var(--p), var(--tray) var(--p) 100%); }
+.slider::-moz-range-track { height: 20px; border-radius: 10px; background: var(--tray); box-shadow: inset 0 2px 5px var(--tray-inset); }
+.slider::-moz-range-progress { height: 20px; border-radius: 10px; background: var(--accent); }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 52px; height: 52px; margin-top: -16px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat);
+  box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); transition: transform 140ms var(--spring), box-shadow 140ms; }
+.slider:active::-webkit-slider-thumb { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.slider::-moz-range-thumb { width: 50px; height: 50px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow); }
+.value { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.range { position: relative; height: 56px; }
+.range .track { position: absolute; left: 0; right: 0; top: 18px; height: 20px; border-radius: 10px; background: var(--tray); box-shadow: inset 0 2px 5px var(--tray-inset); }
+.range .fill { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 10px; }
+.range input { position: absolute; inset: 0; width: 100%; pointer-events: none; -webkit-appearance: none; appearance: none; background: none; margin: 0; height: 56px; }
+.range input::-webkit-slider-runnable-track { background: transparent; height: 20px; }
+.range input::-moz-range-track { background: transparent; }
+.range input::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 44px; height: 44px; margin-top: -12px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow); cursor: pointer; }
+.range input::-moz-range-thumb { pointer-events: auto; width: 42px; height: 42px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow); cursor: pointer; }
+.arcsvg { width: 100%; max-width: 200px; aspect-ratio: 1; display: block; margin: 0 auto; touch-action: none; user-select: none; }
+.arcsvg .track, .dial .track { fill: none; stroke: var(--tray); }
+.arcsvg .arc, .dial .arc { fill: none; stroke: var(--accent); stroke-linecap: round; }
+.arcsvg .thumb, .dial .thumb { fill: var(--raised); stroke: var(--seat); stroke-width: 1; filter: drop-shadow(0 3px 4px var(--shadow)); cursor: grab; }
+.arcsvg:focus { outline: none; }
+.arcsvg:focus-visible .thumb, .dial .thumb:focus-visible { outline: none; stroke: var(--accent-ink); stroke-width: 2.5; }
+.arcsvg text, .dial text { fill: var(--ink); font: 800 30px Manrope, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.dial { width: 100%; max-width: 240px; aspect-ratio: 1; margin: 0 auto; touch-action: none; user-select: none; display: block; }
+.dial .face { fill: var(--raised); stroke: var(--seat); stroke-width: 1; filter: drop-shadow(0 3px 5px var(--shadow)); }
+.stepper { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stepper .tray { padding: 10px 0; width: 76px; text-align: center; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; border-radius: 20px; }
+.stars { display: flex; gap: 10px; }
+.stars button { background: none; border: 0; padding: 4px; cursor: pointer; color: var(--seat); border-radius: 10px; display: grid; place-items: center; }
+.stars button svg { width: 30px; height: 30px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.stars button.on { color: var(--accent); }
+
+/* fields */
+.field label, .flabel { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 6px 4px; }
+.fbox { display: flex; align-items: center; gap: 8px; background: var(--tray); border-radius: 20px; padding: 0 8px 0 18px; box-shadow: inset 0 3px 10px var(--tray-inset); transition: box-shadow .15s, background .35s; min-height: 52px; }
+.fbox:focus-within { box-shadow: inset 0 3px 10px var(--tray-inset), 0 0 0 2px var(--accent-ink); }
+.fbox input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: none; border: 0; outline: none; padding: 14px 0; }
+.fbox .ghost { background: none; border: 0; font: inherit; font-weight: 700; font-size: 13px; color: var(--ink); cursor: pointer; padding: 8px 10px; border-radius: 12px; display: grid; place-items: center; }
+.fbox .ghost:active { background: var(--raised); }
+.fsupport { font-size: 12.5px; color: var(--muted); margin: 6px 0 0 4px; }
+.select .fbox { cursor: pointer; width: 100%; font: inherit; color: var(--ink); border: 0; justify-content: space-between; text-align: left; }
+
+
+/* States. Disabled rests sunk with faded content and never shows the accent; errors use the error rim. */
+.key:disabled { cursor: default; color: color-mix(in srgb, var(--ink) 38%, transparent); }
+.key:disabled .box { transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); background: var(--raised); }
+.key:disabled .box svg { stroke: color-mix(in srgb, var(--ink) 38%, transparent); }
+.key.radio:disabled .box i { background: color-mix(in srgb, var(--ink) 38%, transparent); }
+.key:disabled .switch .knob { box-shadow: inset 0 2px 6px var(--press-inset); }
+.key:disabled .switch .knob .led { background: color-mix(in srgb, var(--ink) 30%, transparent) !important; }
+.pebble.latch:disabled .led { background: color-mix(in srgb, var(--ink) 25%, transparent); }
+.slider:disabled { cursor: default; }
+.slider:disabled::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--seat) 0 var(--p), var(--tray) var(--p) 100%); }
+.slider:disabled::-moz-range-progress { background: var(--seat); }
+.slider:disabled::-webkit-slider-thumb { box-shadow: inset 0 2px 6px var(--press-inset); }
+.fbox:has(input:disabled) input { color: color-mix(in srgb, var(--ink) 38%, transparent); }
+.field.disabled label { color: color-mix(in srgb, var(--ink) 38%, transparent); }
+.fbox:has(input[aria-invalid="true"]) { box-shadow: inset 0 3px 10px var(--tray-inset), 0 0 0 2px var(--error); }
+.ferror { font-size: 12.5px; color: var(--error); margin: 6px 0 0 4px; font-weight: 600; }
+.seg button:disabled { cursor: default; color: color-mix(in srgb, var(--ink) 38%, transparent); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.state { font-size: 12.5px; color: var(--muted); font-weight: 700; width: 100%; margin-top: 4px; }
+
+/* menus, tooltips */
+.menu { position: absolute; z-index: 30; min-width: 180px; background: var(--raised); border: 1px solid var(--seat); border-radius: 18px; padding: 6px; box-shadow: 0 6px 16px var(--shadow), 0 2px 6px var(--shadow); display: grid; }
+.menu button { background: none; border: 0; font: inherit; color: var(--ink); text-align: left; padding: 12px 14px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 16px; }
+.menu button:hover, .menu button:focus-visible { background: var(--tray); outline: none; }
+.menu button:disabled { color: color-mix(in srgb, var(--ink) 38%, transparent); cursor: default; background: none; }
+.anchor { position: relative; display: inline-flex; }
+.tip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--charcoal); color: var(--on-charcoal); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 10px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 20; }
+.anchor:hover .tip, .anchor:focus-within .tip { opacity: 1; }
+.richtip { position: absolute; bottom: calc(100% + 10px); left: 0; width: 240px; max-width: 80vw; background: var(--raised); border: 1px solid var(--seat); border-radius: 18px; padding: 14px 16px; box-shadow: 0 6px 16px var(--shadow); z-index: 20; display: grid; gap: 6px; font-size: 14px; }
+.richtip .rtext { display: block; color: var(--muted); }
+
+/* badges, dividers, avatar, skeleton */
+.badged { position: relative; display: inline-grid; place-items: center; width: 48px; height: 48px; }
+.badge { position: absolute; top: 2px; right: 0; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--charcoal); color: var(--on-charcoal); font-size: 11.5px; font-weight: 800; display: grid; place-items: center; }
+.badge.dot { min-width: 10px; width: 10px; height: 10px; padding: 0; top: 10px; right: 10px; background: var(--accent); }
+.hr { height: 1px; background: var(--seat); width: 100%; }
+.vr { width: 1px; align-self: stretch; background: var(--seat); }
+.avatar { position: relative; width: 52px; height: 52px; border-radius: 50%; background: var(--raised); border: 1px solid var(--seat); display: grid; place-items: center; font-weight: 800; box-shadow: 0 3px 8px var(--shadow); }
+.avatar.lg { width: 64px; height: 64px; font-size: 20px; }
+.avatar .online { position: absolute; right: 2px; bottom: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--body); }
+.skel { background: var(--tray); border-radius: 8px; height: 14px; animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+.expand { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: 0; font: inherit; font-weight: 700; color: var(--ink); padding: 10px 4px; cursor: pointer; border-radius: 12px; }
+.expand svg { transition: transform .2s; }
+.expand[aria-expanded="true"] svg { transform: rotate(180deg); }
+.empty { text-align: center; display: grid; gap: 8px; justify-items: center; padding: 24px; }
+.empty p { color: var(--muted); font-size: 14px; }
+.cell .demo.col > * { min-width: 0; }
+.carousel { width: 100%; min-width: 0; display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 2px 10px; scrollbar-width: none; }
+.carousel::-webkit-scrollbar { display: none; }
+.carousel .card { flex: 0 0 78%; scroll-snap-align: center; min-height: 120px; display: grid; place-items: center; font-weight: 800; font-size: 20px; }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 6px; height: 4px; border-radius: 2px; background: var(--seat); transition: background .2s; }
+.dots i.on { width: 18px; background: var(--accent); }
+
+/* feedback */
+.bar { height: 10px; border-radius: 5px; background: var(--tray); box-shadow: inset 0 2px 4px var(--tray-inset); overflow: hidden; position: relative; }
+.bar i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--accent); border-radius: 5px; }
+.bar.indet i { width: 35%; animation: indet 1.4s ease-in-out infinite; }
+@keyframes indet { from { left: -35%; } to { left: 100%; } }
+.spinner { width: 40px; height: 40px; }
+.spinner circle { fill: none; stroke-width: 5; }
+.spinner .t { stroke: var(--tray); }
+.spinner .a { stroke: var(--accent); stroke-linecap: round; }
+.spinner.indet { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toastpill { background: var(--charcoal); color: var(--on-charcoal); border-radius: 22px; padding: 10px 20px; display: inline-flex; gap: 12px; align-items: center; font-weight: 600; font-size: 14px; max-width: 100%; min-height: 44px; }
+.toastpill:has(> button:not([hidden])) { padding-right: 8px; }
+.toastpill button { background: none; border: 0; color: var(--on-charcoal); font: inherit; font-weight: 800; padding: 6px 10px; border-radius: 12px; cursor: pointer; }
+.snack { background: var(--charcoal); color: var(--on-charcoal); border-radius: 20px; padding: 14px 10px 14px 20px; display: flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 600; width: 100%; }
+.snack span { flex: 1; }
+.snack button { background: none; border: 0; color: var(--on-charcoal); font: inherit; font-weight: 800; padding: 6px 10px; border-radius: 12px; cursor: pointer; }
+.banner { padding: 16px 18px 10px; border-radius: 24px; display: grid; gap: 6px; }
+.banner .msg { display: flex; gap: 12px; align-items: center; font-size: 14px; font-weight: 600; }
+.banner .acts { display: flex; justify-content: flex-end; }
+
+/* phones */
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; justify-items: center; }
+.phone { width: min(360px, 100%); height: 680px; border-radius: 44px; padding: 10px; background: var(--charcoal); box-shadow: 0 18px 40px var(--shadow); }
+:root[data-theme="graphite"] .phone { background: #0E0F10; }
+.screen { position: relative; height: 100%; border-radius: 36px; overflow: hidden; background: var(--body); display: flex; flex-direction: column; }
+.appbar { display: flex; align-items: center; gap: 10px; padding: 14px 12px 10px; }
+.appbar .title { flex: 1; font-weight: 800; font-size: 20px; }
+.screen .content { flex: 1; overflow: auto; padding: 8px 12px 12px; display: grid; gap: 10px; align-content: start; position: relative; }
+.navbar { display: flex; gap: 6px; padding: 8px; margin: 0 10px 10px; border-radius: var(--r-card); background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow), inset 0 1px 1px var(--highlight); }
+.navbar button, .rail button { flex: 1; display: grid; justify-items: center; gap: 4px; padding: 8px 4px 10px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 12.5px; font-weight: 700; border-radius: 20px; cursor: pointer; transition: transform 140ms var(--spring), box-shadow 140ms; }
+.navbar button .led, .rail button .led { width: 16px; height: 4px; }
+.navbar button[aria-current="page"], .rail button[aria-current="page"] { color: var(--accent-ink); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.navbar button[aria-current="page"] .led, .rail button[aria-current="page"] .led { background: var(--accent); }
+.rail { display: grid; gap: 8px; align-content: start; justify-items: center; padding: 12px 8px; width: 104px; border-radius: 28px; background: var(--tray); box-shadow: inset 0 3px 10px var(--tray-inset); }
+.rail button { width: 84px; flex: none; }
+.rail .pebble.accent { width: 56px; height: 56px; border-radius: 18px; margin-bottom: 6px; padding: 0; display: grid; }
+.tabs { display: flex; border-bottom: 1px solid var(--seat); padding-bottom: 6px; width: 100%; }
+.tabs button { flex: 1; background: none; border: 0; font: inherit; font-size: 14px; font-weight: 700; color: var(--ink); padding: 9px 4px; border-radius: 18px; cursor: pointer; display: grid; justify-items: center; gap: 4px; transition: transform 140ms var(--spring), box-shadow 140ms; }
+.tabs button .led { width: 16px; height: 4px; }
+.tabs button[aria-selected="true"] { color: var(--accent-ink); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); }
+.tabs button[aria-selected="true"] .led { background: var(--accent); }
+.row { position: relative; border-radius: 22px; overflow: hidden; }
+.row .under { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 0 12px; background: var(--tray); }
+.row .under.delete { padding-right: 22px; color: var(--muted); font-weight: 800; font-size: 13px; }
+.item { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 64px; background: var(--body); border-radius: 22px; touch-action: pan-y; transition: transform .25s var(--spring); }
+.item.drag { transition: none; }
+.item[tabindex]:focus-visible { outline-offset: -3px; }
+.item .txt { flex: 1; min-width: 0; }
+.item .txt b { display: block; font-size: 15px; }
+.item .txt span { color: var(--muted); font-size: 13px; }
+.item.raised { background: var(--raised); border: 1px solid var(--seat); box-shadow: 0 3px 8px var(--shadow); }
+.handle { background: none; border: 0; padding: 8px; color: var(--muted); cursor: grab; touch-action: none; border-radius: 10px; display: grid; }
+.reorder { display: grid; gap: 8px; }
+.reorder .item.lifted { box-shadow: 0 10px 24px var(--shadow); z-index: 2; transition: none; }
+.ptr { display: grid; place-items: center; height: 0; overflow: hidden; }
+.bottomappbar { display: flex; align-items: center; gap: 6px; padding: 10px 14px 14px; background: var(--raised); border-top: 1px solid var(--seat); }
+.bottomappbar .grow { flex: 1; }
+.sheetpeek { background: var(--raised); border-top: 1px solid var(--seat); border-radius: 28px 28px 0 0; box-shadow: 0 -6px 18px var(--shadow); padding: 0 18px 14px; max-height: 88px; overflow: hidden; }
+.sheetpeek.open { max-height: 320px; }
+.grabwrap { display: grid; justify-content: center; align-content: center; background: none; border: 0; width: 100%; min-height: 32px; padding: 10px 0 8px; cursor: pointer; }
+.grabwrap:focus-visible { outline-offset: -4px; border-radius: 20px; }
+.grab { width: 40px; height: 5px; border-radius: 3px; background: var(--seat); display: block; }
+.overlay { position: absolute; inset: 0; z-index: 40; background: var(--scrim); opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; display: flex; }
+.overlay.open { opacity: 1; visibility: visible; }
+.overlay .dlg { margin: auto 14px; width: 100%; background: var(--body); border-radius: 28px; padding: 22px; display: grid; gap: 14px; box-shadow: 0 18px 40px rgba(0,0,0,.3); transform: scale(.96); transition: transform .2s var(--spring); max-height: calc(100% - 28px); overflow: auto; }
+.overlay.open .dlg { transform: scale(1); }
+.dlg h3 { margin: 0; font-size: 20px; }
+.dlg p { color: var(--muted); font-size: 15px; }
+.dlg .acts { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.overlay.bottom { align-items: flex-end; }
+.overlay .sheet { width: 100%; background: var(--body); border-radius: 28px 28px 0 0; padding: 0 20px 22px; display: grid; gap: 10px; transform: translateY(100%); transition: transform .28s var(--spring); }
+.overlay.open .sheet { transform: none; }
+.overlay.side { justify-content: flex-end; }
+.overlay .side-sheet { width: 74%; height: 100%; background: var(--body); border-radius: 28px 0 0 28px; padding: 22px 18px; display: grid; gap: 14px; align-content: start; transform: translateX(100%); transition: transform .28s var(--spring); }
+.overlay.open .side-sheet { transform: none; }
+.overlay .drawer { width: 78%; height: 100%; background: var(--body); border-radius: 0 28px 28px 0; padding: 22px 14px; display: grid; gap: 6px; align-content: start; transform: translateX(-100%); transition: transform .28s var(--spring); }
+.overlay.open .drawer { transform: none; }
+.drawer button { display: flex; align-items: center; gap: 14px; background: none; border: 0; font: inherit; font-weight: 700; color: var(--ink); padding: 14px 16px; border-radius: 22px; cursor: pointer; text-align: left; transition: transform 140ms var(--spring), box-shadow 140ms; }
+.drawer button .grow { flex: 1; }
+.drawer button .badge { position: static; }
+.drawer button[aria-current="page"] { color: var(--accent-ink); transform: translateY(var(--sink)); box-shadow: inset 0 2px 6px var(--press-inset); background: var(--raised); }
+.drawer button[aria-current="page"] .led { background: var(--accent); }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 13.5px; }
+.cal .dow { color: var(--muted); font-weight: 700; padding: 4px 0; }
+.cal button { aspect-ratio: 1; border: 0; background: none; font: inherit; color: var(--ink); border-radius: 50%; cursor: pointer; font-variant-numeric: tabular-nums; }
+.cal button.sel { background: var(--charcoal); color: var(--on-charcoal); font-weight: 800; }
+.cal button.inr { background: var(--tray); border-radius: 0; }
+.cal button.today { box-shadow: inset 0 0 0 1.5px var(--accent-ink); }
+.calhead { display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+.phone-toast { position: absolute; left: 50%; bottom: 88px; transform: translate(-50%, 30px); opacity: 0; visibility: hidden; transition: .25s var(--spring); z-index: 45; width: max-content; max-width: 90%; }
+.phone-toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+.fabfloat { position: absolute; right: 16px; bottom: 96px; z-index: 5; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 160%); z-index: 60; max-width: calc(100vw - 32px); transition: transform 300ms var(--spring); }
+.toast.show { transform: translate(-50%, 0); }
+footer { border-top: 1px solid var(--seat); padding: 32px 0 48px; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5.5"/><path d="M11 6.5 5.5 12l5.5 5.5"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6.5 9.5V20h11V9.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-alarm" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 10v3l2 2M5 4 2 7M19 4l3 3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3.5v7"/><path d="M6.6 6.6a7.5 7.5 0 1 0 10.8 0"/></symbol>
+  <symbol id="i-input" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"/><path d="M2 12h11M10 9l3 3-3 3"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="12" cy="18.5" r="1.3"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="4.5" rx="1.5"/><path d="M5.5 9v9.5a1.5 1.5 0 0 0 1.5 1.5h10a1.5 1.5 0 0 0 1.5-1.5V9M10 13h4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-drag" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="15" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#"><span class="led on" aria-hidden="true"></span> Casual Yumi</a>
+    <div class="controls">
+      <div class="seg small" role="radiogroup" aria-label="Theme" id="theme" style="width:210px">
+        <button role="radio" aria-checked="true" data-theme="putty">Putty</button>
+        <button role="radio" aria-checked="false" data-theme="graphite">Graphite</button>
+      </div>
+      <div class="swatches" role="radiogroup" aria-label="Accent" id="accents"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="leaflet">
+      <div class="story">
+        <h1>Casual Yumi</h1>
+        <p class="lede">Matte, soft-touch components for Jetpack Compose, modelled on a TV remote.</p>
+        <p class="tale">I wanted a clean, modern, elegant design, and the Chromecast remote gave me the inspiration: round soft keys that sink when you press them, a big ring on top, and <em>one key that stands apart from the rest</em>. I made that key orange and turned the whole remote into Compose components.</p>
+        <div class="cta">
+          <a class="pebble primary accent" href="#install">Install</a>
+          <a class="pebble primary" href="#all">See all 76 parts</a>
+          <a class="pebble primary text" href="https://github.com/vladlazarean/casual-yumi"><svg class="i"><use href="#i-github"/></svg> GitHub</a>
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div class="remote" aria-label="The remote. Every key works.">
+          <div class="well tray">
+            <div class="ring" id="ring" data-part="1" role="slider" tabindex="0" aria-label="Ring: turn to change the volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="30">
+              <svg viewBox="0 0 152 152" aria-hidden="true"><path id="ringArc"/></svg>
+            </div>
+            <button class="pebble okkey" id="okKey" data-part="2" aria-label="Centre key"></button>
+          </div>
+          <div class="keygrid">
+            <button class="pebble round" data-part="5" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+            <button class="pebble round accent" id="snoozeKey" data-part="3" aria-label="Snooze five minutes"><svg class="i"><use href="#i-plus"/></svg></button>
+            <button class="pebble round" data-part="5" aria-label="Home"><svg class="i"><use href="#i-home"/></svg></button>
+            <button class="pebble round latch" data-part="4" aria-pressed="false" aria-label="Mute"><svg class="i"><use href="#i-mute"/></svg></button>
+            <div role="radiogroup" aria-label="Day or week" style="display:contents">
+              <button class="pebble pair" role="radio" aria-checked="false" data-part="6">Day</button>
+              <button class="pebble pair" role="radio" aria-checked="true" data-part="6">Week</button>
+            </div>
+          </div>
+          <div class="bottomrow tray" data-part="7">
+            <button class="pebble round" id="powerKey" data-part="5" aria-label="Power: turns the status light on and off"><svg class="i"><use href="#i-power"/></svg></button>
+            <span class="led on statusled" id="statusLed" data-part="8" aria-hidden="true"></span>
+            <button class="pebble round" data-part="5" aria-label="Input"><svg class="i"><use href="#i-input"/></svg></button>
+          </div>
+        </div>
+        <ol class="parts" aria-label="Parts">
+          <li><button data-for="1"><b>Ring</b><code>YumiCircularSlider · YumiTimeDial</code></button></li>
+          <li><button data-for="2"><b>Centre key</b><code>YumiButton</code></button></li>
+          <li><button data-for="3"><b>Orange key, one per screen</b><code>YumiFab · YumiButton(Accent)</code></button></li>
+          <li><button data-for="4"><b>Mute, latches down</b><code>YumiIconToggleButton</code></button></li>
+          <li><button data-for="5"><b>Icon keys</b><code>YumiIconButton</code></button></li>
+          <li><button data-for="6"><b>Paired keys, selected sinks</b><code>YumiSegmentedButtonRow</code></button></li>
+          <li><button data-for="7"><b>Strip, read only</b><code>YumiTray</code></button></li>
+          <li><button data-for="8"><b>Status light</b><code>YumiLed</code></button></li>
+        </ol>
+      </div>
+    </div>
+
+    <section class="block" id="install" aria-labelledby="install-h">
+      <div class="block-head">
+        <h2 id="install-h">Install</h2>
+        <p>Served by JitPack. No account, no token. Your app needs compileSdk 37 (Compose 1.12).</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-head"><h3>settings.gradle.kts</h3><button class="pebble copy" data-copy="settings" aria-label="Copy settings.gradle.kts"><svg class="i s"><use href="#i-copy"/></svg> Copy</button></div>
+          <div class="tray snippet" role="region" aria-label="settings.gradle.kts code"><pre id="settings"><span class="k">dependencyResolutionManagement</span> {
+    repositories {
+        google()
+        mavenCentral()
+        maven(<span class="k">"https://jitpack.io"</span>)
+    }
+}</pre></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><h3>app/build.gradle.kts</h3><button class="pebble copy" data-copy="deps" aria-label="Copy app/build.gradle.kts"><svg class="i s"><use href="#i-copy"/></svg> Copy</button></div>
+          <div class="tray snippet" role="region" aria-label="app/build.gradle.kts code"><pre id="deps"><span class="k">dependencies</span> {
+    implementation(<span class="k">"com.github.vladlazarean.casual-yumi:yumi-components:0.0.9"</span>)
+}</pre></div>
+        </div>
+        <div class="step">
+          <div class="step-head"><h3>Wrap your app</h3><button class="pebble copy" data-copy="themecode" aria-label="Copy theme example"><svg class="i s"><use href="#i-copy"/></svg> Copy</button></div>
+          <div class="tray snippet" role="region" aria-label="Theme example code"><pre id="themecode"><span class="k">YumiTheme</span>(accent = YumiAccent.Orange) {
+    <span class="k">YumiButton</span>(onClick = { }, variant = YumiButtonVariant.Accent) {
+        Text(<span class="k">"Dismiss"</span>)
+    }
+}</pre></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="care-h">
+      <div class="block-head">
+        <h2 id="care-h">Four rules</h2>
+        <p>Every component follows them. Learn them once and the whole library behaves the same way.</p>
+      </div>
+      <div class="rules">
+        <div class="rule"><div class="demo"><button class="pebble">Press</button><div class="tray" style="padding:10px 16px;border-radius:18px;font-weight:800">07:30</div></div><h3>Raised means press it</h3><p>Recessed means read it. A tray never takes a tap.</p></div>
+        <div class="rule"><div class="demo"><button class="pebble accent">Dismiss</button><button class="pebble">Snooze</button></div><h3>Orange is scarce</h3><p>One accent action per screen, plus the lights that say something is on.</p></div>
+        <div class="rule"><div class="demo"><div class="seg" role="radiogroup" aria-label="Period demo" style="max-width:220px"><button role="radio" aria-checked="false">Day</button><button role="radio" aria-checked="true">Week</button></div></div><h3>Selected means sunk</h3><p>Selected keys rest pushed in with orange ink. Never an orange fill.</p></div>
+        <div class="rule"><div class="demo"><button class="pebble round" aria-label="Add"><svg class="i"><use href="#i-plus"/></svg></button><button class="pebble" disabled>Disabled</button></div><h3>A press is a sink</h3><p>Keys drop and swap their shadow. No ripples anywhere. Disabled keys rest sunk.</p></div>
+      </div>
+    </section>
+
+    <section class="block" id="all" aria-labelledby="all-h">
+      <div class="block-head">
+        <h2 id="all-h">All 76 parts</h2>
+        <p>Every public component in the library, live. Switch theme and accent at the top. The two phones at the end hold the screen-level parts: scaffold, bars, drawer, sheets and dialogs.</p>
+      </div>
+
+      <div class="group">
+        <h3>Buttons</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiButton"><div class="demo"><button class="pebble primary accent">Dismiss</button><button class="pebble primary">Snooze</button><button class="pebble primary charcoal">Read it</button><span class="state">Disabled: the accent key turns grey</span><button class="pebble primary accent" disabled>Dismiss</button><button class="pebble primary" disabled>Snooze</button></div><div class="name"><code>YumiButton</code><span class="note">Accent, Neutral and Charcoal</span></div></div>
+          <div class="cell" data-component="YumiIconButton"><div class="demo"><button class="pebble round" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button><button class="pebble round" aria-label="Settings"><svg class="i"><use href="#i-settings"/></svg></button><button class="pebble round" disabled aria-label="Delete"><svg class="i"><use href="#i-trash"/></svg></button></div><div class="name"><code>YumiIconButton</code></div></div>
+          <div class="cell" data-component="YumiTextButton"><div class="demo"><button class="pebble text">Cancel</button><button class="pebble text">Learn more</button><button class="pebble text" disabled>Disabled</button></div><div class="name"><code>YumiTextButton</code><span class="note">Flat, for trays and dialogs</span></div></div>
+          <div class="cell" data-component="YumiFab"><div class="demo"><button class="pebble round accent" style="border-radius:20px;width:64px;height:64px" aria-label="New alarm" data-toast="New alarm"><svg class="i"><use href="#i-plus"/></svg></button></div><div class="name"><code>YumiFab</code><span class="note">The screen's one accent action</span></div></div>
+          <div class="cell" data-component="YumiToggleButton"><div class="demo"><button class="pebble latch" aria-pressed="true"><span class="led on"></span><span class="label">Latched</span></button><button class="pebble latch" aria-pressed="false"><span class="led"></span><span class="label">Released</span></button><button class="pebble latch" aria-pressed="false" disabled><span class="led"></span><span class="label">Disabled</span></button></div><div class="name"><code>YumiToggleButton</code></div></div>
+          <div class="cell" data-component="YumiIconToggleButton"><div class="demo"><button class="pebble round latch" aria-pressed="true" aria-label="Mute"><svg class="i"><use href="#i-mute"/></svg></button><button class="pebble round latch" aria-pressed="false" aria-label="Notifications"><svg class="i"><use href="#i-bell"/></svg></button></div><div class="name"><code>YumiIconToggleButton</code></div></div>
+          <div class="cell" data-component="YumiSplitButton"><div class="demo"><div class="anchor" style="gap:6px"><button class="pebble" data-toast="Snoozed for 5 minutes">Snooze</button><button class="pebble sinks" style="padding:0 12px" aria-label="Snooze options" aria-expanded="false" data-menu="splitMenu"><svg class="i s"><use href="#i-down"/></svg></button>
+            <div class="menu" id="splitMenu" hidden style="top:56px;right:0"><button data-toast="Snoozed for 10 minutes">10 minutes</button><button data-toast="Snoozed for 30 minutes">30 minutes</button></div></div></div><div class="name"><code>YumiSplitButton</code></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Selection</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiCheckbox"><div class="demo"><button class="key check" role="checkbox" aria-checked="true"><span class="box"><svg class="yes"><use href="#i-check"/></svg></span> Rain</button><button class="key check" role="checkbox" aria-checked="false"><span class="box"><svg class="yes"><use href="#i-check"/></svg></span> Wind</button><button class="key check" role="checkbox" aria-checked="true" disabled><span class="box"><svg class="yes"><use href="#i-check"/></svg></span> Locked</button></div><div class="name"><code>YumiCheckbox</code></div></div>
+          <div class="cell" data-component="YumiTriStateCheckbox"><div class="demo col">
+            <button class="key" role="checkbox" aria-checked="mixed" id="triAll"><span class="box"><svg class="yes"><use href="#i-check"/></svg><svg class="part"><use href="#i-minus"/></svg></span> All days</button>
+            <div class="indent"><button class="key check tri-child" role="checkbox" aria-checked="true"><span class="box"><svg class="yes"><use href="#i-check"/></svg></span> Weekdays</button><button class="key check tri-child" role="checkbox" aria-checked="false"><span class="box"><svg class="yes"><use href="#i-check"/></svg></span> Weekend</button></div></div><div class="name"><code>YumiTriStateCheckbox</code><span class="note">The parent follows its children</span></div></div>
+          <div class="cell" data-component="YumiRadioButton"><div class="demo"><button class="key radio" role="radio" aria-checked="true" data-solo aria-label="Option one"><span class="box"><i></i></span></button><button class="key radio" role="radio" aria-checked="false" data-solo aria-label="Option two"><span class="box"><i></i></span></button><button class="key radio" role="radio" aria-checked="true" disabled aria-label="Disabled option"><span class="box"><i></i></span></button></div><div class="name"><code>YumiRadioButton</code></div></div>
+          <div class="cell" data-component="YumiRadioGroup"><div class="demo col" role="radiogroup" aria-label="Alarm sound"><button class="key radio" role="radio" aria-checked="true"><span class="box"><i></i></span> Chime</button><button class="key radio" role="radio" aria-checked="false"><span class="box"><i></i></span> Bell</button><button class="key radio" role="radio" aria-checked="false"><span class="box"><i></i></span> Birds</button></div><div class="name"><code>YumiRadioGroup</code></div></div>
+          <div class="cell" data-component="YumiSwitch"><div class="demo"><button class="key toggle" role="switch" aria-checked="true" aria-label="Alarm armed"><span class="switch"><span class="knob"><span class="led"></span></span></span></button><button class="key toggle" role="switch" aria-checked="false" aria-label="Vibrate"><span class="switch"><span class="knob"><span class="led"></span></span></span></button><button class="key toggle" role="switch" aria-checked="true" disabled aria-label="Locked on"><span class="switch"><span class="knob"><span class="led"></span></span></span></button></div><div class="name"><code>YumiSwitch</code></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Sliders and dials</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiSlider"><div class="demo col"><label class="value" for="vol"><span>Volume</span><span id="volOut"></span></label><input class="slider" id="vol" type="range" min="0" max="100" value="40"><label class="value" for="bright"><span>Brightness, in steps</span><span id="brightOut"></span></label><input class="slider" id="bright" type="range" min="0" max="100" step="10" value="70"><label class="value" for="locked"><span>Disabled</span><span>50 %</span></label><input class="slider" id="locked" type="range" min="0" max="100" value="50" disabled></div><div class="name"><code>YumiSlider</code></div></div>
+          <div class="cell" data-component="YumiRangeSlider"><div class="demo col"><div class="value"><span>Quiet hours</span><span id="rangeOut"></span></div><div class="range"><div class="track"><div class="fill" id="rangeFill"></div></div><input type="range" min="0" max="24" value="22" id="rangeHi" aria-label="End hour"><input type="range" min="0" max="24" value="7" id="rangeLo" aria-label="Start hour"></div></div><div class="name"><code>YumiRangeSlider</code></div></div>
+          <div class="cell" data-component="YumiCircularSlider"><div class="demo col"><svg class="arcsvg" id="circ" viewBox="0 0 200 200" role="slider" tabindex="0" aria-label="Level" aria-valuemin="0" aria-valuemax="100"><path class="track" stroke-width="18" id="circTrack"/><path class="arc" stroke-width="18" id="circArc"/><circle class="thumb" r="17" id="circThumb"/><text x="100" y="112" text-anchor="middle" id="circText"></text></svg></div><div class="name"><code>YumiCircularSlider</code></div></div>
+          <div class="cell" data-component="YumiTimeDial"><div class="demo col"><svg class="dial" id="dial" viewBox="0 0 300 300" role="group" aria-label="Time dial: inner ring hours, outer ring minutes"></svg></div><div class="name"><code>YumiTimeDial</code><span class="note">Inner ring hours, outer ring minutes</span></div></div>
+          <div class="cell" data-component="YumiStepper"><div class="demo"><div class="stepper" role="group" aria-label="Snooze minutes"><button class="pebble round mid" id="minus" aria-label="Fewer minutes"><svg class="i"><use href="#i-minus"/></svg></button><div class="tray" id="stepVal" aria-live="polite">5</div><button class="pebble round mid" id="plus" aria-label="More minutes"><svg class="i"><use href="#i-plus"/></svg></button></div></div><div class="name"><code>YumiStepper</code><span class="note">Snooze minutes, 1 to 30</span></div></div>
+          <div class="cell" data-component="YumiRatingBar"><div class="demo"><div class="stars" id="stars" role="radiogroup" aria-label="Rating"></div></div><div class="name"><code>YumiRatingBar</code></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Inputs, chips and segments</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiTextField"><div class="demo col"><div class="field"><label for="tf1">Alarm name</label><div class="fbox"><input id="tf1" value="Morning run" autocomplete="off"></div><p class="fsupport">Shown on the lock screen</p></div><div class="field"><label for="tfTime">Time</label><div class="fbox"><input id="tfTime" value="25:99" inputmode="numeric" autocomplete="off" aria-invalid="true" aria-describedby="tfTimeErr"></div><p class="ferror" id="tfTimeErr">Use 24-hour time, for example 07:30</p></div><div class="field disabled"><label for="tfLocked">Disabled</label><div class="fbox"><input id="tfLocked" value="Locked" disabled></div></div></div><div class="name"><code>YumiTextField</code><span class="note">Normal, error and disabled</span></div></div>
+          <div class="cell" data-component="YumiSecureTextField"><div class="demo col"><div class="field"><label for="pw">Password</label><div class="fbox"><input id="pw" type="password" value="soft-touch" autocomplete="off"><button class="ghost" id="pwToggle" aria-pressed="false">Show</button></div></div></div><div class="name"><code>YumiSecureTextField</code></div></div>
+          <div class="cell" data-component="YumiSearchField"><div class="demo col"><div class="fbox" style="border-radius:26px"><svg class="i s" style="color:var(--muted)"><use href="#i-search"/></svg><input id="q" value="rain" aria-label="Search" autocomplete="off"><button class="ghost" id="qClear" aria-label="Clear search"><svg class="i s"><use href="#i-close"/></svg></button></div></div><div class="name"><code>YumiSearchField</code></div></div>
+          <div class="cell" data-component="YumiSelectField"><div class="demo col"><div class="select anchor" style="display:block"><span class="flabel">Alert sound</span><button class="fbox" data-menu="soundMenu" aria-expanded="false" aria-haspopup="listbox"><span id="soundVal">Soft chime</span><svg class="i s"><use href="#i-down"/></svg></button>
+            <div class="menu" id="soundMenu" hidden style="top:84px;left:0;right:0"><button data-pick="soundVal">Soft chime</button><button data-pick="soundVal">Bell</button><button data-pick="soundVal">Birds</button></div></div></div><div class="name"><code>YumiSelectField</code></div></div>
+          <div class="cell" data-component="YumiFilterChip"><div class="demo"><button class="pebble chip latch" aria-pressed="true"><svg class="i s tick"><use href="#i-check"/></svg><span class="label">Rain</span></button><button class="pebble chip latch" aria-pressed="false"><svg class="i s tick"><use href="#i-check"/></svg><span class="label">Wind</span></button><button class="pebble chip latch" aria-pressed="false"><svg class="i s tick"><use href="#i-check"/></svg><span class="label">Sun</span></button><button class="pebble chip latch" aria-pressed="false" disabled><svg class="i s tick"><use href="#i-check"/></svg><span class="label">Off</span></button></div><div class="name"><code>YumiFilterChip</code></div></div>
+          <div class="cell" data-component="YumiAssistChip"><div class="demo"><button class="pebble chip" data-toast="Added to calendar"><svg class="i s"><use href="#i-calendar"/></svg>Add to calendar</button></div><div class="name"><code>YumiAssistChip</code></div></div>
+          <div class="cell" data-component="YumiInputChip"><div class="demo" id="inputChips"><span class="pebble chip" style="cursor:default">Weekdays<button class="x" aria-label="Remove Weekdays"><svg class="i s"><use href="#i-close"/></svg></button></span><span class="pebble chip" style="cursor:default">Gym<button class="x" aria-label="Remove Gym"><svg class="i s"><use href="#i-close"/></svg></button></span></div><div class="name"><code>YumiInputChip</code><span class="note">Removable</span></div></div>
+          <div class="cell" data-component="YumiSegmentedButtonRow"><div class="demo"><div class="seg" role="radiogroup" aria-label="Period"><button role="radio" aria-checked="false">Day</button><button role="radio" aria-checked="true">Week</button><button role="radio" aria-checked="false">Month</button></div><div class="seg" role="radiogroup" aria-label="Period, disabled"><button role="radio" aria-checked="false" disabled>Day</button><button role="radio" aria-checked="true" disabled>Week</button></div></div><div class="name"><code>YumiSegmentedButtonRow</code><span class="note">One choice</span></div></div>
+          <div class="cell" data-component="YumiMultiChoiceSegmentedButtonRow"><div class="demo"><div class="seg days" role="group" aria-label="Repeat on"><button class="latch" aria-pressed="true" aria-label="Monday">M</button><button class="latch" aria-pressed="false" aria-label="Tuesday">T</button><button class="latch" aria-pressed="true" aria-label="Wednesday">W</button><button class="latch" aria-pressed="false" aria-label="Thursday">T</button><button class="latch" aria-pressed="true" aria-label="Friday">F</button><button class="latch" aria-pressed="false" aria-label="Saturday">S</button><button class="latch" aria-pressed="false" aria-label="Sunday">S</button></div></div><div class="name"><code>YumiMultiChoiceSegmentedButtonRow</code><span class="note">Several choices</span></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Surfaces and content</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiTray"><div class="demo col"><div class="tray" style="padding:18px 22px"><div style="display:flex;gap:8px;align-items:center;font-weight:700"><span class="led on"></span> Next alarm</div><div style="font-size:28px;font-weight:800">07:30</div></div></div><div class="name"><code>YumiTray</code><span class="note">Read only</span></div></div>
+          <div class="cell" data-component="YumiCard"><div class="demo col"><div class="card"><p style="font-weight:800;margin-bottom:10px">Card</p><button class="pebble small">Keys inside render flat</button></div><button class="card" data-toast="Opened card">Clickable card: the whole card is a key</button></div><div class="name"><code>YumiCard</code><span class="note">Static and clickable</span></div></div>
+          <div class="cell" data-component="YumiLed"><div class="demo"><span class="led on" style="width:22px"></span> Armed <span class="led" style="width:22px;margin-left:12px"></span> Off</div><div class="name"><code>YumiLed</code><span class="note">The only thing that lights up</span></div></div>
+          <div class="cell"><div class="demo"><span class="badged" data-component="YumiBadgedBox"><svg class="i"><use href="#i-bell"/></svg><span class="badge" data-component="YumiBadge">3</span></span><span class="badged"><svg class="i"><use href="#i-alarm"/></svg><span class="badge">99+</span></span><span class="badged"><svg class="i"><use href="#i-search"/></svg><span class="badge dot"></span></span></div><div class="name"><span class="codes"><code>YumiBadgedBox</code><code>YumiBadge</code></span></div></div>
+          <div class="cell"><div class="demo col"><div class="hr" data-component="YumiHorizontalDivider"></div><div style="display:flex;gap:16px;align-items:center;height:32px">Left<div class="vr" data-component="YumiVerticalDivider"></div>Right</div></div><div class="name"><span class="codes"><code>YumiHorizontalDivider</code><code>YumiVerticalDivider</code></span></div></div>
+          <div class="cell"><div class="demo" style="padding-top:44px"><span class="anchor" data-component="YumiTooltipBox"><button class="pebble round mid" aria-describedby="tip1" aria-label="Settings"><svg class="i"><use href="#i-settings"/></svg></button><span class="tip" role="tooltip" id="tip1">Settings</span></span>
+            <span class="anchor" data-component="YumiRichTooltipBox"><button class="pebble small" aria-expanded="false" data-rich="rich1">What is snooze?</button><span class="richtip" id="rich1" hidden role="dialog" aria-label="Snooze"><b>Snooze</b><span class="rtext">Rings again after the minutes you set.</span><button class="pebble text small" style="justify-self:end" data-close-rich="rich1">Got it</button></span></span></div><div class="name"><span class="codes"><code>YumiTooltipBox</code><code>YumiRichTooltipBox</code></span></div></div>
+          <div class="cell" data-component="YumiAvatar"><div class="demo"><span class="avatar">VB</span><span class="avatar lg">AY<span class="online" role="img" aria-label="online"></span></span><span class="avatar">Z</span></div><div class="name"><code>YumiAvatar</code></div></div>
+          <div class="cell"><div class="demo col"><div style="display:flex;gap:14px;align-items:center"><div class="skel" data-component="YumiSkeleton" style="width:52px;height:52px;border-radius:50%;flex:none"></div><div style="flex:1;display:grid;gap:8px" data-component="YumiSkeletonLines"><div class="skel"></div><div class="skel" style="width:80%"></div><div class="skel" style="width:55%"></div></div></div></div><div class="name"><span class="codes"><code>YumiSkeleton</code><code>YumiSkeletonLines</code></span></div></div>
+          <div class="cell" data-component="YumiExpandableSection"><div class="demo col"><button class="expand" aria-expanded="true" data-expand="exp1">Advanced<svg class="i s"><use href="#i-down"/></svg></button><div id="exp1" style="padding:0 4px 8px;color:var(--muted)">Hidden settings live here.</div><div class="hr"></div><button class="expand" aria-expanded="false" data-expand="exp2">Collapsed<svg class="i s"><use href="#i-down"/></svg></button><div id="exp2" hidden style="padding:0 4px 8px;color:var(--muted)">Now you see it.</div></div><div class="name"><code>YumiExpandableSection</code></div></div>
+          <div class="cell" data-component="YumiEmptyState"><div class="demo col"><div class="tray empty"><b style="font-size:18px">No alarms yet</b><p>Add one and it shows up here.</p><button class="pebble accent small" data-toast="Alarm added">Add alarm</button></div></div><div class="name"><code>YumiEmptyState</code></div></div>
+          <div class="cell"><div class="demo col"><div class="carousel" id="carousel" data-component="YumiCarousel" role="region" aria-label="Carousel" tabindex="0"><div class="card">One</div><div class="card">Two</div><div class="card">Three</div><div class="card">Four</div></div><div class="dots" id="dots" data-component="YumiPagerIndicator" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div></div><div class="name"><span class="codes"><code>YumiCarousel</code><code>YumiPagerIndicator</code></span></div></div>
+          <div class="cell" data-component="YumiDropdownMenu"><div class="demo" style="min-height:56px"><span class="anchor"><button class="pebble round mid sinks" aria-label="More" aria-expanded="false" data-menu="ddMenu"><svg class="i"><use href="#i-more"/></svg></button>
+            <span class="menu" id="ddMenu" hidden style="top:56px;left:0"><button data-component="YumiDropdownMenuItem" data-toast="Editing">Edit</button><button data-toast="Duplicated">Duplicate</button><button disabled>Delete</button></span></span><span style="color:var(--muted);font-size:14px">Open it</span></div><div class="name"><span class="codes"><code>YumiDropdownMenu</code><code>YumiDropdownMenuItem</code></span></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Feedback</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiLinearProgress"><div class="demo col"><div class="bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Download"><i style="width:60%"></i></div><div class="bar indet" role="progressbar" aria-label="Loading"><i></i></div></div><div class="name"><code>YumiLinearProgress</code><span class="note">Determinate and indeterminate</span></div></div>
+          <div class="cell" data-component="YumiCircularProgress"><div class="demo"><svg class="spinner" viewBox="0 0 40 40" role="progressbar" aria-valuenow="60" aria-label="Sync"><circle class="t" cx="20" cy="20" r="16"/><circle class="a" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="40" transform="rotate(-90 20 20)"/></svg><svg class="spinner indet" viewBox="0 0 40 40" role="progressbar" aria-label="Loading"><circle class="t" cx="20" cy="20" r="16"/><circle class="a" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="70"/></svg></div><div class="name"><code>YumiCircularProgress</code></div></div>
+          <div class="cell"><div class="demo col" style="align-items:flex-start"><span class="toastpill" data-component="YumiToast">Alarm saved</span><button class="pebble small" data-component="YumiToastHost" data-toast="Alarm deleted" data-toast-action="Undo">Show a toast</button></div><div class="name"><span class="codes"><code>YumiToast</code><code>YumiToastHost</code></span></div></div>
+          <div class="cell" data-component="YumiSnackbar"><div class="demo col"><div class="snack"><span>Couldn't reach the server. Showing saved data.</span><button data-toast="Retrying">Retry</button></div></div><div class="name"><code>YumiSnackbar</code><span class="note">Full width</span></div></div>
+          <div class="cell" data-component="YumiBanner"><div class="demo col"><div class="tray banner" id="banner"><div class="msg"><span class="led on"></span>You're offline. Changes sync when you reconnect.</div><div class="acts"><button class="pebble text small" data-toast="Retrying">Retry</button><button class="pebble text small" id="bannerDismiss">Dismiss</button></div></div><button class="pebble small" id="bannerBack" hidden>Show the banner again</button></div><div class="name"><code>YumiBanner</code></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Lists, gestures and navigation</h3>
+        <div class="cells">
+          <div class="cell" data-component="YumiListItem"><div class="demo col"><div class="item raised"><div class="txt"><b>07:30 · Weekdays</b><span>Morning run</span></div><button class="key toggle" role="switch" aria-checked="true" aria-label="Morning run armed"><span class="switch mini"><span class="knob"><span class="led"></span></span></span></button></div><div class="item"><div class="txt"><b>Read-only row</b><span>No press, no sink</span></div></div></div><div class="name"><code>YumiListItem</code></div></div>
+          <div class="cell" data-component="YumiSwipeToDismiss"><div class="demo col"><div class="row"><div class="under delete">Dismiss</div><div class="item raised swipe-dismiss" tabindex="0" aria-label="Swipe me left. Press Delete to dismiss."><div class="txt"><b>Swipe me left</b><span>Past 40 % it goes, or focus it and press Delete</span></div></div></div></div><div class="name"><code>YumiSwipeToDismiss</code></div></div>
+          <div class="cell" data-component="YumiSwipeActions"><div class="demo col"><div class="row"><div class="under"><button class="pebble round mid" aria-label="Archive" data-toast="Archived"><svg class="i"><use href="#i-archive"/></svg></button></div><div class="item raised swipe-reveal"><div class="txt"><b>Swipe to reveal</b><span>Keys wait underneath</span></div></div></div></div><div class="name"><code>YumiSwipeActions</code></div></div>
+          <div class="cell"><div class="demo col"><div class="reorder" id="reorder" data-component="YumiReorderableColumn"><div class="item raised"><div class="txt"><b>Clock</b></div><button class="handle" data-component="YumiDragHandle" aria-label="Move Clock"><svg class="i"><use href="#i-drag"/></svg></button></div><div class="item raised"><div class="txt"><b>Weather</b></div><button class="handle" aria-label="Move Weather"><svg class="i"><use href="#i-drag"/></svg></button></div><div class="item raised"><div class="txt"><b>Outfit</b></div><button class="handle" aria-label="Move Outfit"><svg class="i"><use href="#i-drag"/></svg></button></div></div></div><div class="name"><span class="codes"><code>YumiReorderableColumn</code><code>YumiDragHandle</code></span><span class="note">Drag, or use the arrow keys</span></div></div>
+          <div class="cell" data-component="YumiPullToRefreshBox"><div class="demo col"><div class="tray" style="border-radius:24px;overflow:hidden;touch-action:none" id="ptrBox"><div class="ptr" id="ptr"><svg class="spinner indet" viewBox="0 0 40 40" style="width:30px;height:30px"><circle class="t" cx="20" cy="20" r="16"/><circle class="a" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="70"/></svg></div><div style="padding:16px 18px;display:grid;gap:6px"><b>Pull down here</b><span style="color:var(--muted);font-size:14px" id="ptrStamp">Updated just now</span></div></div><button class="pebble small" id="ptrBtn" style="justify-self:start">Refresh</button></div><div class="name"><code>YumiPullToRefreshBox</code><span class="note">Pull down, or press Refresh</span></div></div>
+          <div class="cell" data-component="YumiNavigationRail"><div class="demo"><nav class="rail" aria-label="Rail demo"><button class="pebble accent" aria-label="New" data-toast="New alarm"><svg class="i"><use href="#i-plus"/></svg></button><button aria-current="page" data-component="YumiNavigationRailItem"><svg class="i"><use href="#i-alarm"/></svg>Alarms<span class="led"></span></button><button><svg class="i"><use href="#i-search"/></svg>Search<span class="led"></span></button></nav></div><div class="name"><span class="codes"><code>YumiNavigationRail</code><code>YumiNavigationRailItem</code></span></div></div>
+          <div class="cell"><div class="demo col"><div class="tabs" role="tablist" aria-label="Period" data-component="YumiTabRow"><button role="tab" aria-selected="false" data-component="YumiTab">Today<span class="led"></span></button><button role="tab" aria-selected="true">Week<span class="led"></span></button><button role="tab" aria-selected="false">Month<span class="led"></span></button></div></div><div class="name"><span class="codes"><code>YumiTabRow</code><code>YumiTab</code></span></div></div>
+        </div>
+      </div>
+
+      <div class="group">
+        <h3>Screens, bars, sheets and dialogs</h3>
+        <div class="phones">
+          <div class="phone"><div class="screen" id="phoneA" data-component="YumiScaffold">
+            <div class="appbar" data-component="YumiTopAppBar"><button class="pebble round mid" aria-label="Open the navigation drawer" data-open="drawer" data-component="YumiModalNavigationDrawer"><svg class="i"><use href="#i-menu"/></svg></button><span class="title">Alarms</span><span class="anchor"><button class="pebble round mid sinks" aria-label="More" aria-expanded="false" data-menu="appMenu"><svg class="i"><use href="#i-more"/></svg></button><span class="menu" id="appMenu" hidden style="top:56px;right:0"><button data-phone-toast="phoneToastA" data-msg="Sorted by time">Sort by time</button><button data-phone-toast="phoneToastA" data-msg="Settings">Settings</button></span></span></div>
+            <div class="content" id="phoneList">
+              <div class="ptr" id="ptrA"><svg class="spinner indet" viewBox="0 0 40 40" style="width:28px;height:28px"><circle class="t" cx="20" cy="20" r="16"/><circle class="a" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="70"/></svg></div>
+              <div class="row"><div class="under delete">Dismiss</div><div class="item raised swipe-dismiss" tabindex="0" aria-label="06:45, Gym · swipe left. Press Delete to dismiss."><div class="txt"><b>06:45</b><span>Gym · swipe left</span></div><button class="key toggle" role="switch" aria-checked="true" aria-label="06:45 armed"><span class="switch mini"><span class="knob"><span class="led"></span></span></span></button></div></div>
+              <div class="row"><div class="under delete">Dismiss</div><div class="item raised swipe-dismiss" tabindex="0" aria-label="07:30, Weekdays. Press Delete to dismiss."><div class="txt"><b>07:30</b><span>Weekdays</span></div><button class="key toggle" role="switch" aria-checked="true" aria-label="07:30 armed"><span class="switch mini"><span class="knob"><span class="led"></span></span></span></button></div></div>
+              <div class="row"><div class="under delete">Dismiss</div><div class="item raised swipe-dismiss" tabindex="0" aria-label="09:00, Weekend. Press Delete to dismiss."><div class="txt"><b>09:00</b><span>Weekend</span></div><button class="key toggle" role="switch" aria-checked="false" aria-label="09:00 armed"><span class="switch mini"><span class="knob"><span class="led"></span></span></span></button></div></div>
+              <p style="color:var(--muted);font-size:13px;text-align:center;padding:8px 8px 0">Pull the list down to refresh, or</p><button class="pebble text small" id="ptrABtn" style="justify-self:center">Refresh now</button>
+            </div>
+            <button class="pebble round accent fabfloat" style="border-radius:20px;width:60px;height:60px" aria-label="New alarm" data-phone-toast="phoneToastA" data-msg="New alarm at 08:00"><svg class="i"><use href="#i-plus"/></svg></button>
+            <nav class="navbar" aria-label="App navigation" data-component="YumiNavigationBar"><button aria-current="page" data-component="YumiNavigationBarItem"><svg class="i"><use href="#i-alarm"/></svg>Alarms<span class="led"></span></button><button><svg class="i"><use href="#i-clock"/></svg>Clock<span class="led"></span></button><button><svg class="i"><use href="#i-sun"/></svg>Weather<span class="led"></span></button></nav>
+            <div class="phone-toast" id="phoneToastA" role="status"><span class="toastpill"><span class="msg">Saved</span><button data-undo hidden>Undo</button></span></div>
+            <div class="overlay" id="drawer"><nav class="drawer" aria-label="Drawer"><b style="padding:8px 16px 14px;font-size:18px">Casual Yumi</b><button aria-current="page" data-component="YumiNavigationDrawerItem"><svg class="i"><use href="#i-alarm"/></svg><span class="grow">Alarms</span><span class="badge">2</span><span class="led"></span></button><button><svg class="i"><use href="#i-settings"/></svg><span class="grow">Settings</span><span class="led"></span></button><button><svg class="i"><use href="#i-sun"/></svg><span class="grow">Weather</span><span class="led"></span></button></nav></div>
+          </div></div>
+
+          <div class="phone"><div class="screen" id="phoneB" data-component="YumiBottomSheetScaffold">
+            <div class="appbar"><span class="title">Dialogs and sheets</span></div>
+            <div class="content">
+              <button class="pebble" data-open="dlgCustom" data-component="YumiDialog">Dialog</button>
+              <button class="pebble" data-open="dlgAlert" data-component="YumiAlertDialog">Alert dialog</button>
+              <button class="pebble" data-open="dlgTime" data-component="YumiTimePickerDialog">Time picker</button>
+              <button class="pebble" data-open="dlgDate" data-component="YumiDatePickerDialog">Date picker</button>
+              <button class="pebble" data-open="dlgRange" data-component="YumiDateRangePickerDialog">Date range picker</button>
+              <button class="pebble" data-open="sheetModal" data-component="YumiModalBottomSheet">Bottom sheet</button>
+              <button class="pebble" data-open="sheetSide" data-component="YumiModalSideSheet">Side sheet</button>
+            </div>
+            <div class="sheetpeek" id="peek"><button class="grabwrap" aria-expanded="false" id="peekToggle" aria-label="Expand the sheet"><span class="grab"></span></button><b>Persistent sheet</b><p style="color:var(--muted);font-size:14px;margin-top:6px">Tap the handle to expand it.</p><div style="display:grid;gap:8px;margin-top:12px"><div class="item raised"><div class="txt"><b>Sunrise</b><span>06:58</span></div></div><div class="item raised"><div class="txt"><b>Sunset</b><span>16:41</span></div></div></div></div>
+            <div class="bottomappbar" data-component="YumiBottomAppBar"><button class="pebble round mid" aria-label="Search" data-phone-toast="phoneToastB" data-msg="Search"><svg class="i"><use href="#i-search"/></svg></button><button class="pebble round mid" aria-label="Filters" data-open="sheetSide"><svg class="i"><use href="#i-filter"/></svg></button><span class="grow"></span><button class="pebble round accent" style="border-radius:18px" aria-label="New alarm" data-open="dlgTime"><svg class="i"><use href="#i-plus"/></svg></button></div>
+            <div class="phone-toast" id="phoneToastB" role="status" style="bottom:170px"><span class="toastpill"><span class="msg">Saved</span></span></div>
+
+            <div class="overlay" id="dlgCustom"><div class="dlg" role="dialog" aria-label="Custom dialog"><h3>Custom content</h3><input class="slider" type="range" min="0" max="100" value="55" aria-label="Custom slider"><div class="acts"><button class="pebble accent small" data-close>Done</button></div></div></div>
+            <div class="overlay" id="dlgAlert"><div class="dlg" role="alertdialog" aria-label="Delete alarm"><h3>Delete alarm?</h3><p>This can't be undone.</p><div class="acts"><button class="pebble text small" data-close>Cancel</button><button class="pebble accent small" data-close data-phone-toast="phoneToastB" data-msg="Alarm deleted">Delete</button></div></div></div>
+            <div class="overlay" id="dlgTime"><div class="dlg" role="dialog" aria-label="Set time"><h3>Set time</h3><svg class="dial" id="dial2" viewBox="0 0 300 300" style="max-width:220px" role="group" aria-label="Time dial"></svg><div class="acts"><button class="pebble text small" data-close>Cancel</button><button class="pebble accent small" data-close data-phone-toast="phoneToastB" data-msg-from="dial2">OK</button></div></div></div>
+            <div class="overlay" id="dlgDate"><div class="dlg" role="dialog" aria-label="Pick a date"><h3>Pick a date</h3><div class="calhead"><button class="pebble round mid" data-cal-prev="calSingle" aria-label="Previous month"><svg class="i"><use href="#i-left"/></svg></button><span data-cal-title="calSingle"></span><button class="pebble round mid" data-cal-next="calSingle" aria-label="Next month"><svg class="i"><use href="#i-right"/></svg></button></div><div class="cal" id="calSingle" data-mode="single"></div><div class="acts"><button class="pebble text small" data-close>Cancel</button><button class="pebble accent small" data-close data-phone-toast="phoneToastB" data-msg-from="calSingle">OK</button></div></div></div>
+            <div class="overlay" id="dlgRange"><div class="dlg" role="dialog" aria-label="Pick dates"><h3>Select dates</h3><div class="calhead"><button class="pebble round mid" data-cal-prev="calRange" aria-label="Previous month"><svg class="i"><use href="#i-left"/></svg></button><span data-cal-title="calRange"></span><button class="pebble round mid" data-cal-next="calRange" aria-label="Next month"><svg class="i"><use href="#i-right"/></svg></button></div><div class="cal" id="calRange" data-mode="range"></div><div class="acts"><button class="pebble text small" data-close>Cancel</button><button class="pebble accent small" data-close data-phone-toast="phoneToastB" data-msg-from="calRange">OK</button></div></div></div>
+            <div class="overlay bottom" id="sheetModal"><div class="sheet" role="dialog" aria-label="Repeat"><button class="grabwrap" data-close aria-label="Close the sheet"><span class="grab"></span></button><b style="font-size:18px">Repeat</b><div role="radiogroup" aria-label="Repeat" style="display:grid;gap:8px"><button class="key radio" role="radio" aria-checked="false"><span class="box"><i></i></span> Once</button><button class="key radio" role="radio" aria-checked="true"><span class="box"><i></i></span> Weekdays</button><button class="key radio" role="radio" aria-checked="false"><span class="box"><i></i></span> Every day</button></div><button class="pebble accent" data-close style="justify-self:start">Save</button></div></div>
+            <div class="overlay side" id="sheetSide"><div class="side-sheet" role="dialog" aria-label="Filters"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">Filters</b><button class="pebble round mid" data-close aria-label="Close filters"><svg class="i"><use href="#i-close"/></svg></button></div><button class="key toggle" role="switch" aria-checked="true"><span class="switch mini"><span class="knob"><span class="led"></span></span></span> Armed only</button><button class="key toggle" role="switch" aria-checked="false"><span class="switch mini"><span class="knob"><span class="led"></span></span></span> Weekends</button><button class="pebble accent" data-close style="justify-self:start">Apply</button></div></div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Casual Yumi 0.0.9 · Apache-2.0 · © 2026 Vlad Lazarean</span>
+    <span>This page is a web mockup. The library is Kotlin. <a href="https://github.com/vladlazarean/casual-yumi">Source on GitHub</a></span>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="toastpill"><span id="toastText">Saved</span><button id="toastAction" hidden></button></span></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const root = document.documentElement;
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+  const pad = n => String(n).padStart(2, '0');
+
+  // Theme and accent. Accent presets from YumiAccent.kt: light, light ink, dark, dark ink.
+  const ACCENTS = { Orange: ['#E8772E', '#8A3B0E', '#F08A45', '#F08A45'], Amber: ['#E0A100', '#6E4A00', '#F2B632', '#F2B632'], Sage: ['#6FA287', '#2F5A44', '#8CC2A4', '#8CC2A4'], Sky: ['#4C9BD6', '#1D4F78', '#7DB8E8', '#7DB8E8'], Coral: ['#EC7B6D', '#8E2A20', '#F28A7E', '#F28A7E'] };
+  let theme = store.get('yumi-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'graphite' : 'putty');
+  let accent = ACCENTS[store.get('yumi-accent')] ? store.get('yumi-accent') : 'Orange';
+  Object.keys(ACCENTS).forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'swatch'; b.setAttribute('role', 'radio'); b.dataset.accent = name; b.setAttribute('aria-label', name + ' accent'); b.title = name; b.innerHTML = '<i></i>';
+    b.onclick = () => { accent = name; store.set('yumi-accent', name); apply(); };
+    $('#accents').appendChild(b);
+  });
+  $$('#theme button').forEach(b => b.onclick = () => { theme = b.dataset.theme; store.set('yumi-theme', theme); apply(); });
+  function apply() {
+    root.dataset.theme = theme;
+    const dark = theme === 'graphite', [la, li, da, di] = ACCENTS[accent];
+    root.style.setProperty('--accent', dark ? da : la); root.style.setProperty('--accent-ink', dark ? di : li);
+    $$('#theme button').forEach(b => b.setAttribute('aria-checked', b.dataset.theme === theme));
+    $$('#accents .swatch').forEach(b => { b.setAttribute('aria-checked', b.dataset.accent === accent); $('i', b).style.background = ACCENTS[b.dataset.accent][dark ? 2 : 0]; });
+  }
+
+  // Toasts: one for the page, one per phone. An optional undo runs a callback.
+  let tt, onAction = null;
+  function toast(msg, action, cb) {
+    $('#toastText').textContent = msg; const a = $('#toastAction'); a.hidden = !action; a.textContent = action || ''; onAction = cb || null;
+    $('#toast').classList.add('show'); clearTimeout(tt); tt = setTimeout(() => $('#toast').classList.remove('show'), 3200);
+  }
+  $('#toastAction').onclick = () => { if (onAction) onAction(); $('#toast').classList.remove('show'); };
+  const ptimers = {}, pundo = {};
+  function phoneToast(id, msg, undo) {
+    const t = $('#' + id); $('.msg', t).textContent = msg; const u = $('[data-undo]', t); if (u) u.hidden = !undo; pundo[id] = undo || null;
+    t.classList.add('show'); clearTimeout(ptimers[id]); ptimers[id] = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+  $$('[data-undo]').forEach(b => b.onclick = () => { const t = b.closest('.phone-toast'); if (pundo[t.id]) pundo[t.id](); t.classList.remove('show'); });
+
+  // Shared behaviours, written once.
+  const readout = {};
+  document.addEventListener('click', e => {
+    const t = e.target.closest('[data-toast]'); if (t) toast(t.dataset.toast, t.dataset.toastAction);
+    const p = e.target.closest('[data-phone-toast]');
+    if (p) { const from = p.dataset.msgFrom; phoneToast(p.dataset.phoneToast, from ? readout[from]() : p.dataset.msg); }
+  });
+  $$('.latch').forEach(b => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on);
+    const led = $(':scope > .led', b); if (led) led.classList.toggle('on', on);
+  }));
+  $$('.key.check, .key.toggle').forEach(b => b.addEventListener('click', () => { b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true'); syncTri(); }));
+  $$('.key.radio[data-solo]').forEach(b => b.addEventListener('click', () => $$('.key.radio[data-solo]').forEach(o => o.setAttribute('aria-checked', o === b))));
+  $$('[role="radiogroup"]').forEach(g => {
+    if (g.id === 'theme' || g.id === 'accents' || g.id === 'stars') return;
+    $$('[role="radio"]', g).forEach(r => r.addEventListener('click', () => $$('[role="radio"]', g).forEach(o => o.setAttribute('aria-checked', o === r))));
+  });
+  $$('.navbar, .rail, .drawer').forEach(n => $$('button:not(.accent)', n).forEach(b => b.addEventListener('click', () =>
+    $$('button:not(.accent)', n).forEach(o => o === b ? o.setAttribute('aria-current', 'page') : o.removeAttribute('aria-current')))));
+  $$('.tabs').forEach(n => $$('button', n).forEach(b => b.addEventListener('click', () => $$('button', n).forEach(o => o.setAttribute('aria-selected', o === b)))));
+  document.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && e.target.classList?.contains('pebble')) e.target.classList.add('is-down'); });
+  document.addEventListener('keyup', e => e.target.classList?.remove('is-down'));
+
+  // Tri-state: the parent mirrors its children; pressing it sets them all.
+  function syncTri() {
+    const kids = $$('.tri-child'), on = kids.filter(k => k.getAttribute('aria-checked') === 'true').length;
+    $('#triAll').setAttribute('aria-checked', on === 0 ? 'false' : on === kids.length ? 'true' : 'mixed');
+  }
+  $('#triAll').onclick = () => { const all = $('#triAll').getAttribute('aria-checked') !== 'true'; $$('.tri-child').forEach(k => k.setAttribute('aria-checked', all)); syncTri(); };
+
+  // Menus and the select field.
+  function closeMenus(except) { $$('.menu').forEach(m => { if (m !== except) { m.hidden = true; const t = $(`[data-menu="${m.id}"]`); if (t) t.setAttribute('aria-expanded', 'false'); } }); }
+  $$('[data-menu]').forEach(t => t.addEventListener('click', e => {
+    e.stopPropagation(); const m = $('#' + t.dataset.menu), open = m.hidden;
+    closeMenus(m); m.hidden = !open; t.setAttribute('aria-expanded', open); if (open) $('button:not(:disabled)', m)?.focus();
+  }));
+  $$('.menu button').forEach(b => b.addEventListener('click', () => { if (b.dataset.pick) $('#' + b.dataset.pick).textContent = b.textContent; closeMenus(); }));
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.menu') && !e.target.closest('[data-menu]')) closeMenus();
+    if (!e.target.closest('.richtip') && !e.target.closest('[data-rich]')) $$('.richtip').forEach(r => { r.hidden = true; });
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenus(); $$('.overlay.open').forEach(closeOverlay); $$('.richtip').forEach(r => r.hidden = true); } });
+  $$('[data-rich]').forEach(b => b.addEventListener('click', () => { const r = $('#' + b.dataset.rich); r.hidden = !r.hidden; b.setAttribute('aria-expanded', !r.hidden); }));
+  $$('[data-close-rich]').forEach(b => b.addEventListener('click', () => { $('#' + b.dataset.closeRich).hidden = true; }));
+  $$('[data-expand]').forEach(b => b.addEventListener('click', () => { const p = $('#' + b.dataset.expand), open = p.hidden; p.hidden = !open; b.setAttribute('aria-expanded', open); }));
+
+  // Fields and chips.
+  $('#pwToggle').onclick = () => { const i = $('#pw'), show = i.type === 'password'; i.type = show ? 'text' : 'password'; $('#pwToggle').textContent = show ? 'Hide' : 'Show'; $('#pwToggle').setAttribute('aria-pressed', show); };
+  const syncClear = () => $('#qClear').style.visibility = $('#q').value ? 'visible' : 'hidden';
+  $('#q').addEventListener('input', syncClear); $('#qClear').onclick = () => { $('#q').value = ''; syncClear(); $('#q').focus(); }; syncClear();
+  $$('#inputChips .x').forEach(x => x.onclick = () => { const chip = x.parentElement; chip.hidden = true; toast(chip.firstChild.textContent + ' removed', 'Undo', () => { chip.hidden = false; }); });
+
+  // Text field error: validate as you type.
+  const tfTime = $('#tfTime'), tfErr = $('#tfTimeErr');
+  const validTime = () => { const ok = /^([01]\d|2[0-3]):[0-5]\d$/.test(tfTime.value.trim()); tfTime.setAttribute('aria-invalid', !ok); tfErr.hidden = ok; };
+  tfTime.addEventListener('input', validTime); validTime();
+
+  // Sliders.
+  $('#locked').style.setProperty('--p', '50%');
+  [['#vol', '#volOut'], ['#bright', '#brightOut']].forEach(([id, out]) => { const s = $(id), o = $(out), u = () => { s.style.setProperty('--p', s.value + '%'); o.textContent = s.value + ' %'; }; s.addEventListener('input', u); u(); });
+  $$('.dlg .slider').forEach(s => { const u = () => s.style.setProperty('--p', s.value + '%'); s.addEventListener('input', u); u(); });
+  function syncRange(e) {
+    let lo = +$('#rangeLo').value, hi = +$('#rangeHi').value;
+    if (lo > hi) { if (e && e.target.id === 'rangeLo') { $('#rangeLo').value = hi; lo = hi; } else { $('#rangeHi').value = lo; hi = lo; } }
+    $('#rangeFill').style.left = lo / 24 * 100 + '%'; $('#rangeFill').style.right = (100 - hi / 24 * 100) + '%';
+    $('#rangeOut').textContent = pad(lo) + ':00 to ' + pad(hi) + ':00';
+  }
+  ['#rangeLo', '#rangeHi'].forEach(id => $(id).addEventListener('input', syncRange)); syncRange();
+
+  // Stepper and rating.
+  let step = 5; const sv = $('#stepVal');
+  const syncStep = () => { sv.textContent = step; $('#minus').disabled = step <= 1; $('#plus').disabled = step >= 30; };
+  $('#minus').onclick = () => { step = Math.max(1, step - 1); syncStep(); };
+  $('#plus').onclick = () => { step = Math.min(30, step + 1); syncStep(); };
+  let rating = 4;
+  for (let i = 1; i <= 5; i++) {
+    const b = document.createElement('button'); b.setAttribute('role', 'radio'); b.setAttribute('aria-label', i + ' star' + (i > 1 ? 's' : ''));
+    b.innerHTML = '<svg><use href="#i-star"/></svg>'; b.onclick = () => { rating = i; drawStars(); }; $('#stars').appendChild(b);
+  }
+  function drawStars() { $$('#stars button').forEach((b, i) => { b.classList.toggle('on', i < rating); b.setAttribute('aria-checked', i + 1 === rating); }); }
+  drawStars();
+
+  // Arc helpers shared by the remote ring, the circular slider and the time dials.
+  const polar = (c, r, f) => { const a = f * 2 * Math.PI - Math.PI / 2; return [c + r * Math.cos(a), c + r * Math.sin(a)]; };
+  const arcPath = (c, r, f) => { if (f <= 0) return ''; f = Math.min(f, .9999); const [x0, y0] = polar(c, r, 0), [x1, y1] = polar(c, r, f); return `M${x0} ${y0} A${r} ${r} 0 ${f > .5 ? 1 : 0} 1 ${x1} ${y1}`; };
+  function angleFrac(el, e, size) {
+    const r = el.getBoundingClientRect(), s = size || r.width;
+    const x = (e.clientX - r.left) / r.width * s - s / 2, y = (e.clientY - r.top) / r.height * s - s / 2;
+    let a = Math.atan2(y, x) + Math.PI / 2; if (a < 0) a += 2 * Math.PI;
+    return { f: a / (2 * Math.PI), d: Math.hypot(x, y) };
+  }
+
+  // The remote.
+  const ring = $('#ring'), ok = $('#okKey'); let volume = 30, okTimer, lastF = null;
+  function setVolume(v, show) {
+    volume = Math.max(0, Math.min(100, Math.round(v)));
+    $('#ringArc').setAttribute('d', arcPath(76, 62, volume / 100)); ring.setAttribute('aria-valuenow', volume); ring.setAttribute('aria-valuetext', volume + ' %');
+    if (show) { ok.textContent = volume; clearTimeout(okTimer); okTimer = setTimeout(() => ok.textContent = '', 1200); }
+  }
+  ring.addEventListener('pointerdown', e => { ring.setPointerCapture(e.pointerId); ring.classList.add('dragging'); lastF = angleFrac(ring, e).f; });
+  ring.addEventListener('pointermove', e => { if (!ring.classList.contains('dragging')) return; const f = angleFrac(ring, e).f; let d = f - lastF; if (d > .5) d -= 1; if (d < -.5) d += 1; lastF = f; setVolume(volume + d * 100, true); });
+  ['pointerup', 'pointercancel'].forEach(t => ring.addEventListener(t, () => ring.classList.remove('dragging')));
+  ring.addEventListener('keydown', e => { const d = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5 }[e.key]; if (d) { e.preventDefault(); setVolume(volume + d, true); } });
+  $('#powerKey').onclick = () => $('#statusLed').classList.toggle('on');
+  $('#snoozeKey').onclick = () => toast('Snoozed for 5 minutes');
+  $$('.parts button').forEach(b => {
+    const parts = $$(`.remote [data-part="${b.dataset.for}"]`), on = v => { parts.forEach(p => p.classList.toggle('spot', v)); b.classList.toggle('lit', v); };
+    ['mouseenter', 'focus'].forEach(t => b.addEventListener(t, () => on(true))); ['mouseleave', 'blur'].forEach(t => b.addEventListener(t, () => on(false)));
+  });
+  $$('.remote [data-part]').forEach(p => { const item = $(`.parts button[data-for="${p.dataset.part}"]`); p.addEventListener('mouseenter', () => item.classList.add('lit')); p.addEventListener('mouseleave', () => item.classList.remove('lit')); });
+
+  // Circular slider: a 270 degree arc, open at the bottom.
+  const circ = $('#circ'); let level = 60; const C0 = .625, SPAN = .75;
+  const arcBetween = (c, r, f0, f1) => { const [x0, y0] = polar(c, r, f0), [x1, y1] = polar(c, r, f1); return `M${x0} ${y0} A${r} ${r} 0 ${f1 - f0 > .5 ? 1 : 0} 1 ${x1} ${y1}`; };
+  function drawCirc() {
+    const f = C0 + SPAN * level / 100;
+    $('#circTrack').setAttribute('d', arcBetween(100, 78, C0, C0 + SPAN)); $('#circArc').setAttribute('d', level > 0 ? arcBetween(100, 78, C0, f) : '');
+    const [x, y] = polar(100, 78, f); $('#circThumb').setAttribute('cx', x); $('#circThumb').setAttribute('cy', y);
+    $('#circText').textContent = level + ' %'; circ.setAttribute('aria-valuenow', level);
+  }
+  let circDrag = false;
+  const circMove = e => { let f = angleFrac(circ, e, 200).f; if (f < C0 - .0625) f += 1; level = Math.max(0, Math.min(100, Math.round((f - C0) / SPAN * 100))); drawCirc(); };
+  circ.addEventListener('pointerdown', e => { circDrag = true; circ.setPointerCapture(e.pointerId); circMove(e); });
+  circ.addEventListener('pointermove', e => circDrag && circMove(e));
+  ['pointerup', 'pointercancel'].forEach(t => circ.addEventListener(t, () => circDrag = false));
+  circ.addEventListener('keydown', e => { const d = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5 }[e.key]; if (d) { e.preventDefault(); level = Math.max(0, Math.min(100, level + d)); drawCirc(); } });
+  drawCirc();
+
+  // Time dial, used standalone and inside the time picker dialog.
+  function mountDial(svg, h0, m0) {
+    const C = 150, RM = 128, RH = 92; let total = h0 * 60 + m0, dragging = null;
+    svg.innerHTML = '<circle class="track" cx="150" cy="150" r="128" stroke-width="22"/><circle class="track" cx="150" cy="150" r="92" stroke-width="22"/><path class="arc" stroke-width="22"/><path class="arc" stroke-width="22"/><circle class="thumb" r="20" tabindex="0" role="slider" aria-label="Minutes" aria-valuemin="0" aria-valuemax="59"/><circle class="thumb" r="20" tabindex="0" role="slider" aria-label="Hours" aria-valuemin="0" aria-valuemax="23"/><circle class="face" cx="150" cy="150" r="58"/><text x="150" y="161" text-anchor="middle"></text>';
+    const [minArc, hourArc] = $$('.arc', svg), [minT, hourT] = $$('.thumb', svg), text = $('text', svg);
+    const fmt = () => pad(Math.floor(total / 60)) + ':' + pad(total % 60);
+    function render() {
+      const h = Math.floor(total / 60), m = total % 60;
+      text.textContent = fmt(); hourArc.setAttribute('d', arcPath(C, RH, h / 24)); minArc.setAttribute('d', arcPath(C, RM, m / 60));
+      const [hx, hy] = polar(C, RH, h / 24), [mx, my] = polar(C, RM, m / 60);
+      hourT.setAttribute('cx', hx); hourT.setAttribute('cy', hy); hourT.setAttribute('aria-valuenow', h);
+      minT.setAttribute('cx', mx); minT.setAttribute('cy', my); minT.setAttribute('aria-valuenow', m);
+    }
+    const set = v => { total = ((v % 1440) + 1440) % 1440; render(); };
+    function dragMin(f) { const m = Math.round(f * 60) % 60, old = total % 60; let h = Math.floor(total / 60); if (old > 45 && m < 15) h++; else if (old < 15 && m > 45) h--; set(h * 60 + m); }
+    function move(e) { const { f } = angleFrac(svg, e, 300); if (dragging === 'hour') set((Math.round(f * 24) % 24) * 60 + total % 60); else dragMin(f); }
+    svg.addEventListener('pointerdown', e => { const { d } = angleFrac(svg, e, 300); if (d < 66 || d > 150) return; dragging = d > (RM + RH) / 2 ? 'min' : 'hour'; svg.setPointerCapture(e.pointerId); move(e); });
+    svg.addEventListener('pointermove', e => dragging && move(e));
+    ['pointerup', 'pointercancel'].forEach(t => svg.addEventListener(t, () => dragging = null));
+    const key = s => e => { const d = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key]; if (d) { e.preventDefault(); set(total + d * s); } };
+    hourT.addEventListener('keydown', key(60)); minT.addEventListener('keydown', key(1));
+    render(); readout[svg.id] = () => 'Alarm set for ' + fmt();
+  }
+  mountDial($('#dial'), 7, 30); mountDial($('#dial2'), 6, 45);
+
+  // Calendars for the date and date range pickers.
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const fmtD = d => d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0, 3);
+  function mountCal(el) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    let view = new Date(today.getFullYear(), today.getMonth(), 1), a = new Date(today), b = null;
+    if (el.dataset.mode === 'range') { b = new Date(today); b.setDate(b.getDate() + 4); }
+    function draw() {
+      $(`[data-cal-title="${el.id}"]`).textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
+      el.innerHTML = ['S','M','T','W','T','F','S'].map(d => `<span class="dow" aria-hidden="true">${d}</span>`).join('');
+      for (let i = 0; i < view.getDay(); i++) el.appendChild(document.createElement('span'));
+      const days = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+      for (let d = 1; d <= days; d++) {
+        const date = new Date(view.getFullYear(), view.getMonth(), d), btn = document.createElement('button'), t = +date;
+        btn.textContent = d; btn.setAttribute('aria-label', date.toDateString());
+        const sel = (a && t === +a) || (b && t === +b); if (sel) btn.classList.add('sel'); btn.setAttribute('aria-pressed', !!sel);
+        if (a && b && t > +a && t < +b) btn.classList.add('inr');
+        if (t === +today && !sel) btn.classList.add('today');
+        btn.onclick = () => { if (el.dataset.mode === 'single') a = date; else if (!a || b) { a = date; b = null; } else if (t < +a) { b = a; a = date; } else b = date; draw(); el.querySelector(`[aria-label="${date.toDateString()}"]`).focus(); };
+        el.appendChild(btn);
+      }
+      const dayBtns = $$('button', el), cur = dayBtns.find(d => d.classList.contains('sel')) || dayBtns.find(d => d.classList.contains('today')) || dayBtns[0];
+      dayBtns.forEach(d => d.tabIndex = d === cur ? 0 : -1);
+    }
+    el.addEventListener('keydown', e => {
+      const days = $$('button', el), i = days.indexOf(document.activeElement); if (i < 0) return;
+      const d = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 7, ArrowUp: -7 }[e.key];
+      let n = d === undefined ? (e.key === 'Home' ? 0 : e.key === 'End' ? days.length - 1 : -1) : Math.max(0, Math.min(days.length - 1, i + d));
+      if (n < 0) return; e.preventDefault(); days.forEach(x => x.tabIndex = -1); days[n].tabIndex = 0; days[n].focus();
+    });
+    $(`[data-cal-prev="${el.id}"]`).onclick = () => { view.setMonth(view.getMonth() - 1); draw(); };
+    $(`[data-cal-next="${el.id}"]`).onclick = () => { view.setMonth(view.getMonth() + 1); draw(); };
+    readout[el.id] = () => b ? 'Dates set: ' + fmtD(a) + ' to ' + fmtD(b) : 'Date set: ' + fmtD(a);
+    draw();
+  }
+  $$('.cal').forEach(mountCal);
+
+  // Overlays inside the phones: dialogs, sheets, drawer.
+  function closeOverlay(o) { o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); if (o._opener) o._opener.focus(); }
+  $$('.overlay').forEach(o => { o.setAttribute('aria-hidden', 'true'); o.addEventListener('click', e => { if (e.target === o) closeOverlay(o); }); });
+  $$('[data-open]').forEach(t => t.addEventListener('click', () => { const o = $('#' + t.dataset.open); o._opener = t; o.classList.add('open'); o.removeAttribute('aria-hidden'); setTimeout(() => $('button, input, [tabindex="0"]', o)?.focus(), 60); }));
+  $$('[data-close]').forEach(b => b.addEventListener('click', () => closeOverlay(b.closest('.overlay'))));
+  $$('.drawer button').forEach(b => b.addEventListener('click', () => setTimeout(() => closeOverlay(b.closest('.overlay')), 180)));
+  $('#peekToggle').onclick = () => { const open = !$('#peek').classList.contains('open'); $('#peek').classList.toggle('open', open); $('#peekToggle').setAttribute('aria-expanded', open); };
+
+  // Carousel with pager indicator.
+  const car = $('#carousel'), dots = $$('#dots i');
+  car.addEventListener('scroll', () => { const cards = $$('.card', car), mid = car.scrollLeft + car.clientWidth / 2; let best = 0, bd = 1e9; cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } }); dots.forEach((d, i) => d.classList.toggle('on', i === best)); }, { passive: true });
+
+  // Banner.
+  $('#bannerDismiss').onclick = () => { $('#banner').hidden = true; $('#bannerBack').hidden = false; };
+  $('#bannerBack').onclick = () => { $('#banner').hidden = false; $('#bannerBack').hidden = true; };
+
+  // Swipe to dismiss (past 40 % of the width) and swipe to reveal actions.
+  function dismiss(item) {
+    item.style.transform = 'translateX(-110%)'; const row = item.closest('.row'), next = row.nextElementSibling;
+    const hadFocus = document.activeElement === item;
+    setTimeout(() => { row.hidden = true; item.style.transform = ''; const f = next && next.querySelector('[tabindex="0"], button'); if (hadFocus && f) f.focus(); }, 220);
+    const undo = () => { row.hidden = false; item.focus(); };
+    if (item.closest('.screen')) phoneToast('phoneToastA', 'Alarm dismissed', undo); else toast('Dismissed', 'Undo', undo);
+  }
+  $$('.swipe-dismiss').forEach(i => i.addEventListener('keydown', e => { if ((e.key === 'Delete' || e.key === 'Backspace') && e.target === i) { e.preventDefault(); dismiss(i); } }));
+  $$('.swipe-reveal').forEach(i => { const under = i.closest('.row').querySelector('.under');
+    under.addEventListener('focusin', () => { i.style.transform = 'translateX(-76px)'; i.dataset.open = '1'; });
+    under.addEventListener('focusout', () => { i.style.transform = ''; delete i.dataset.open; }); });
+  function swipe(item, mode) {
+    let x0 = null, dx = 0, base = 0;
+    item.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; x0 = e.clientX; base = mode === 'reveal' && item.dataset.open ? -76 : 0; item.classList.add('drag'); item.setPointerCapture(e.pointerId); });
+    item.addEventListener('pointermove', e => { if (x0 === null) return; dx = Math.min(0, base + e.clientX - x0); if (mode === 'reveal') dx = Math.max(dx, -96); item.style.transform = `translateX(${dx}px)`; });
+    const end = () => {
+      if (x0 === null) return; x0 = null; item.classList.remove('drag');
+      if (mode === 'dismiss' && -dx > item.offsetWidth * .4) dismiss(item);
+      else if (mode === 'reveal' && dx < -40) { item.style.transform = 'translateX(-76px)'; item.dataset.open = '1'; }
+      else { item.style.transform = ''; delete item.dataset.open; }
+      dx = 0;
+    };
+    item.addEventListener('pointerup', end); item.addEventListener('pointercancel', end);
+  }
+  $$('.swipe-dismiss').forEach(i => swipe(i, 'dismiss')); $$('.swipe-reveal').forEach(i => swipe(i, 'reveal'));
+
+  // Pull to refresh, on the card and on the phone list.
+  function pull(area, ptr, done) {
+    let y0 = null;
+    area.addEventListener('pointerdown', e => { if (area.scrollTop > 0 || e.target.closest('button, .item')) return; y0 = e.clientY; area.setPointerCapture(e.pointerId); });
+    area.addEventListener('pointermove', e => { if (y0 === null) return; ptr.style.height = Math.max(0, Math.min(56, (e.clientY - y0) * .5)) + 'px'; });
+    const end = () => { if (y0 === null) return; y0 = null; if (parseFloat(ptr.style.height) > 40) { ptr.style.height = '48px'; setTimeout(() => { ptr.style.height = '0px'; done(); }, 1000); } else ptr.style.height = '0px'; };
+    area.addEventListener('pointerup', end); area.addEventListener('pointercancel', end);
+  }
+  const refreshed = () => { $('#ptrStamp').textContent = 'Updated at ' + new Date().toTimeString().slice(0, 5); };
+  pull($('#ptrBox'), $('#ptr'), refreshed);
+  $('#ptrBtn').onclick = () => { $('#ptr').style.height = '48px'; setTimeout(() => { $('#ptr').style.height = '0px'; refreshed(); }, 1000); };
+  pull($('#phoneList'), $('#ptrA'), () => phoneToast('phoneToastA', 'Alarms up to date'));
+  $('#ptrABtn').onclick = () => { $('#ptrA').style.height = '48px'; setTimeout(() => { $('#ptrA').style.height = '0px'; phoneToast('phoneToastA', 'Alarms up to date'); }, 1000); };
+
+  // Reorderable column: drag the handle, or focus it and use the arrow keys.
+  const col = $('#reorder');
+  $$('.handle', col).forEach(h => {
+    const item = h.closest('.item'); let y0 = null;
+    h.addEventListener('pointerdown', e => { y0 = e.clientY; h.setPointerCapture(e.pointerId); item.classList.add('lifted'); });
+    h.addEventListener('pointermove', e => {
+      if (y0 === null) return; const dy = e.clientY - y0; item.style.transform = `translateY(${dy}px)`;
+      const prev = item.previousElementSibling, next = item.nextElementSibling;
+      if (dy > item.offsetHeight * .6 && next) { col.insertBefore(next, item); y0 += next.offsetHeight + 8; item.style.transform = `translateY(${e.clientY - y0}px)`; }
+      else if (dy < -item.offsetHeight * .6 && prev) { col.insertBefore(item, prev); y0 -= prev.offsetHeight + 8; item.style.transform = `translateY(${e.clientY - y0}px)`; }
+    });
+    const end = () => { y0 = null; item.classList.remove('lifted'); item.style.transform = ''; };
+    h.addEventListener('pointerup', end); h.addEventListener('pointercancel', end);
+    h.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' && item.previousElementSibling) { e.preventDefault(); col.insertBefore(item, item.previousElementSibling); h.focus(); }
+      if (e.key === 'ArrowDown' && item.nextElementSibling) { e.preventDefault(); col.insertBefore(item.nextElementSibling, item); h.focus(); }
+    });
+  });
+
+  // Copy buttons.
+  $$('.copy').forEach(b => b.addEventListener('click', async () => {
+    const label = b.lastChild;
+    try { await navigator.clipboard.writeText($('#' + b.dataset.copy).textContent); label.textContent = ' Copied'; } catch { label.textContent = ' Select and copy'; }
+    setTimeout(() => label.textContent = ' Copy', 1600);
+  }));
+
+  function rove(group, items, select) {
+    const sync = () => { const list = items(); const cur = list.find(i => i.getAttribute('aria-checked') === 'true' || i.getAttribute('aria-selected') === 'true') || list[0]; list.forEach(i => i.tabIndex = i === cur ? 0 : -1); };
+    group.addEventListener('keydown', e => {
+      const list = items(), i = list.indexOf(document.activeElement); if (i < 0) return;
+      const d = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      const n = d ? (i + d + list.length) % list.length : e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : -1;
+      if (n < 0) return; e.preventDefault(); list[n].focus(); if (select) list[n].click(); sync();
+    });
+    group.addEventListener('click', () => setTimeout(sync));
+    sync();
+  }
+  $$('[role="radiogroup"]').forEach(g => rove(g, () => $$('[role="radio"]:not(:disabled)', g), true));
+  $$('[role="tablist"]').forEach(g => rove(g, () => $$('[role="tab"]:not(:disabled)', g), true));
+
+  apply(); setVolume(30); syncTri();
+})();
+</script>
+</body>
+</html>

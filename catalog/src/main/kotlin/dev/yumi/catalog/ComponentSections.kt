@@ -3,6 +3,7 @@ package dev.yumi.catalog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -138,7 +139,7 @@ internal fun SurfacesSection() {
                     Text("Raised card", style = YumiTheme.typography.titleMedium)
                     Text("A key inside a card draws flat: one depth.", color = YumiTheme.colors.muted)
                 }
-                YumiButton(onClick = {}) { Text("Flat key") }
+                YumiButton(onClick = {}, modifier = Modifier.padding(top = 16.dp)) { Text("Flat key") }
             }
             YumiCard(onClick = {}, onLongClick = {}, modifier = Modifier.fillMaxWidth()) {
                 Text("Clickable card: the whole card sinks", style = YumiTheme.typography.titleMedium)

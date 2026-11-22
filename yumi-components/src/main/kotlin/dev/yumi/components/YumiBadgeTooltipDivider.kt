@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -27,10 +26,12 @@ import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -100,7 +101,10 @@ public fun YumiBadge(
 
 /**
  * Anchors a [YumiBadge] to the top-end corner of [content] (an icon, a navigation icon).
- * Built on Material 3's `BadgedBox`, which handles placement and RTL.
+ *
+ * The badge is centred on the corner, so it sits mostly outside a 24 dp icon's glyph instead of
+ * covering it: the dot on the very corner, a count badge nudged a little further out. Placement
+ * mirrors in RTL. The badge draws outside the box's bounds, like Material's.
  *
  * @param badge the badge.
  * @param modifier modifier for the box.
@@ -112,7 +116,25 @@ public fun YumiBadgedBox(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    BadgedBox(badge = badge, modifier = modifier, content = content)
+    Layout(
+        content = {
+            Box(contentAlignment = Alignment.Center, content = content)
+            Box(content = badge)
+        },
+        modifier = modifier,
+    ) { measurables, constraints ->
+        val anchor = measurables[0].measure(constraints)
+        val badgePlaceable = measurables[1].measure(Constraints())
+        val isDot = badgePlaceable.height <= YumiBadgeDefaults.DotSize.roundToPx()
+        // Centre of the badge, relative to the anchor's top-end corner.
+        val outward = if (isDot) 0 else 2.dp.roundToPx()
+        val centreX = anchor.width + outward
+        val centreY = if (isDot) 0 else 1.dp.roundToPx()
+        layout(anchor.width, anchor.height) {
+            anchor.placeRelative(0, 0)
+            badgePlaceable.placeRelative(centreX - badgePlaceable.width / 2, centreY - badgePlaceable.height / 2, zIndex = 1f)
+        }
+    }
 }
 
 // ── Tooltips ───────────────────────────────────────────────────────────────

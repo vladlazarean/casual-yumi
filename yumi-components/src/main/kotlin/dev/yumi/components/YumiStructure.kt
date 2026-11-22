@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.window.DialogProperties
 import dev.yumi.components.internal.LocalYumiSurfaceLevel
 import dev.yumi.components.internal.PebbleKey
@@ -263,13 +264,16 @@ public object YumiSideSheetDefaults {
  * A modal side sheet sliding in from the end edge over a scrim, for filters or details on tablets
  * and foldables. Body-coloured, so pebbles inside keep their depth. Back and scrim tap dismiss.
  *
- * Material 3 for Compose has no side sheet yet, so this is a full-screen `Dialog` with the
- * panel anchored to the end edge. The dialog handles back.
+ * Material 3 for Compose has no side sheet yet. By default ([fullScreen] `true`) the sheet opens in
+ * a full-screen `Dialog` over the whole window, which is what an app screen wants. With
+ * [fullScreen] `false` it is drawn inside its parent instead, like `YumiModalNavigationDrawer`:
+ * place it last in a `Box` that fills the area it should cover, for example a preview pane.
  *
  * @param visible whether the sheet is shown.
  * @param onDismissRequest called on back or scrim tap.
  * @param modifier modifier for the panel.
  * @param title optional title at the top of the panel.
+ * @param fullScreen `true` to open over the whole window, `false` to stay inside the parent.
  * @param content panel content.
  */
 @Composable
@@ -278,53 +282,77 @@ public fun YumiModalSideSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
+    fullScreen: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val shown = remember { MutableTransitionState(false) }
     shown.targetState = visible
     if (!shown.currentState && !shown.targetState) return
+    if (fullScreen) {
+        Dialog(
+            onDismissRequest = onDismissRequest,
+            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+        ) {
+            SideSheetFrame(shown, onDismissRequest, modifier, title, insets = true, content = content)
+        }
+    } else {
+        BackHandler(enabled = visible, onBack = onDismissRequest)
+        SideSheetFrame(shown, onDismissRequest, modifier, title, insets = false, content = content)
+    }
+}
+
+@Composable
+private fun SideSheetFrame(
+    shown: MutableTransitionState<Boolean>,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    title: (@Composable () -> Unit)?,
+    insets: Boolean,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val reduceMotion = YumiTheme.motion.reduceMotion
     val pane = stringResource(R.string.yumi_sheet_pane)
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
-    ) {
-        Box(Modifier.fillMaxSize()) {
-            AnimatedVisibility(visibleState = shown, enter = fadeIn(), exit = fadeOut()) {
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .background(YumiBottomSheetDefaults.ScrimColor)
-                        .clickable(interactionSource = null, indication = null, onClick = onDismissRequest),
-                )
-            }
-            AnimatedVisibility(
-                visibleState = shown,
-                modifier = Modifier.align(Alignment.CenterEnd),
-                enter = if (reduceMotion) fadeIn() else slideInHorizontally { it },
-                exit = if (reduceMotion) fadeOut() else slideOutHorizontally { it },
+    Box(Modifier.fillMaxSize()) {
+        AnimatedVisibility(visibleState = shown, enter = fadeIn(), exit = fadeOut()) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(YumiBottomSheetDefaults.ScrimColor)
+                    .clickable(interactionSource = null, indication = null, onClick = onDismissRequest),
+            )
+        }
+        AnimatedVisibility(
+            visibleState = shown,
+            modifier = Modifier.align(Alignment.CenterEnd),
+            enter = if (reduceMotion) fadeIn() else slideInHorizontally { it },
+            exit = if (reduceMotion) fadeOut() else slideOutHorizontally { it },
+        ) {
+            val shape = YumiSideSheetDefaults.shape
+            Column(
+                modifier
+                    .fillMaxHeight()
+                    .widthIn(max = YumiSideSheetDefaults.MaxWidth)
+                    .semantics { paneTitle = pane }
+                    .dropShadow(shape, Shadow(radius = 28.dp, color = Color.Black, offset = DpOffset((-6).dp, 0.dp), alpha = YumiTheme.depth.shadowAlpha * 1.4f))
+                    .background(YumiTheme.colors.body, shape)
+                    .then(
+                        if (insets) {
+                            Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End))
+                        } else {
+                            Modifier
+                        },
+                    )
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                val shape = YumiSideSheetDefaults.shape
-                Column(
-                    modifier
-                        .fillMaxHeight()
-                        .widthIn(max = YumiSideSheetDefaults.MaxWidth)
-                        .semantics { paneTitle = pane }
-                        .dropShadow(shape, Shadow(radius = 28.dp, color = Color.Black, offset = DpOffset((-6).dp, 0.dp), alpha = YumiTheme.depth.shadowAlpha * 1.4f))
-                        .background(YumiTheme.colors.body, shape)
-                        .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End))
-                        .padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                CompositionLocalProvider(
+                    LocalYumiSurfaceLevel provides YumiSurfaceLevel.Body,
+                    LocalContentColor provides YumiTheme.colors.ink,
                 ) {
-                    CompositionLocalProvider(
-                        LocalYumiSurfaceLevel provides YumiSurfaceLevel.Body,
-                        LocalContentColor provides YumiTheme.colors.ink,
-                    ) {
-                        if (title != null) {
-                            CompositionLocalProvider(LocalTextStyle provides YumiTheme.typography.headlineSmall) { title() }
-                        }
-                        content()
+                    if (title != null) {
+                        CompositionLocalProvider(LocalTextStyle provides YumiTheme.typography.headlineSmall) { title() }
                     }
+                    content()
                 }
             }
         }

@@ -24,7 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.yumi.components.YumiAvatar
 import dev.yumi.components.YumiBadge
@@ -62,6 +62,7 @@ import dev.yumi.components.YumiTextButton
 import dev.yumi.components.YumiTooltipBox
 import dev.yumi.components.YumiVerticalDivider
 import dev.yumi.foundation.YumiTheme
+import dev.yumi.foundation.tray
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -216,8 +217,8 @@ internal fun ExtrasSection() {
         }
 
         CatalogGroup("YumiModalNavigationDrawer and YumiBottomAppBar") {
-            // Clip so the closed drawer's edge and shadow stay inside the demo box.
-            Box(Modifier.fillMaxWidth().height(320.dp).clipToBounds()) {
+            // Clip so the closed drawer's edge and shadow stay inside the demo window.
+            Box(Modifier.fillMaxWidth().height(320.dp).demoWindow()) {
                 YumiModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
@@ -254,14 +255,28 @@ internal fun ExtrasSection() {
                 }
             }
         }
-        CatalogGroup("YumiModalSideSheet: covers the whole screen") {
-            YumiButton(onClick = { sideSheet = true }) { Text("Side sheet") }
+        CatalogGroup("YumiModalSideSheet, drawn inside this window") {
+            Box(Modifier.fillMaxWidth().height(320.dp).demoWindow()) {
+                Column(
+                    Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(CatalogSpacing.Item, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text("${days.size} days picked", style = YumiTheme.typography.titleMedium, color = YumiTheme.colors.ink)
+                    YumiButton(onClick = { sideSheet = true }) { Text("Open side sheet") }
+                }
+                YumiModalSideSheet(
+                    visible = sideSheet,
+                    onDismissRequest = { sideSheet = false },
+                    modifier = Modifier.fillMaxWidth(0.85f),
+                    title = { Text("Filters") },
+                    fullScreen = false,
+                ) {
+                    YumiMultiChoiceSegmentedButtonRow(options = Weekdays, selected = days, onSelectionChange = { days = it }) { Text(it.take(1)) }
+                    YumiButton(onClick = { sideSheet = false }, variant = YumiButtonVariant.Accent) { Text("Apply") }
+                }
+            }
         }
-    }
-
-    YumiModalSideSheet(visible = sideSheet, onDismissRequest = { sideSheet = false }, title = { Text("Filters") }) {
-        YumiMultiChoiceSegmentedButtonRow(options = Weekdays, selected = days, onSelectionChange = { days = it }) { Text(it.take(1)) }
-        YumiButton(onClick = { sideSheet = false }, variant = YumiButtonVariant.Accent) { Text("Apply") }
     }
 
     if (rangeDialog) {
@@ -274,3 +289,8 @@ internal fun ExtrasSection() {
         )
     }
 }
+
+/** A recessed, clipped window that holds a drawer or side sheet demo. */
+@Composable
+private fun Modifier.demoWindow(): Modifier =
+    clip(YumiTheme.shapes.tray).tray(YumiTheme.colors.tray, YumiTheme.shapes.tray, YumiTheme.depth)

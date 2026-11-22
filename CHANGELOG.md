@@ -29,8 +29,8 @@ First public preview. Everything below is new. While the version starts with 0, 
 - Lists: `YumiListItem`, `YumiSwipeToDismiss`.
 
 ### Extras
-- From the brief: `YumiBadge` + `YumiBadgedBox`, `YumiTooltipBox`, `YumiRichTooltipBox`, `YumiHorizontalDivider`, `YumiVerticalDivider`.
-- Structure: `YumiScaffold`, `YumiModalNavigationDrawer` + `YumiNavigationDrawerItem`, `YumiBottomAppBar`, `YumiModalSideSheet`, `YumiBottomSheetScaffold`.
+- From the brief: `YumiBadge` + `YumiBadgedBox` (the badge sits on the icon's corner, clear of the glyph), `YumiTooltipBox`, `YumiRichTooltipBox`, `YumiHorizontalDivider`, `YumiVerticalDivider`.
+- Structure: `YumiScaffold`, `YumiModalNavigationDrawer` + `YumiNavigationDrawerItem`, `YumiBottomAppBar`, `YumiModalSideSheet` (over the whole window, or inside its parent with `fullScreen = false`), `YumiBottomSheetScaffold`.
 - Input: `YumiSelectField`, `YumiDateRangePickerDialog`, `YumiMultiChoiceSegmentedButtonRow`, `YumiIconToggleButton`, `YumiSplitButton`, `YumiRatingBar`.
 - Content: `YumiAvatar`, `YumiSkeleton`, `YumiSkeletonLines`, `YumiEmptyState`, `YumiExpandableSection`, `YumiCarousel`, `YumiPagerIndicator`.
 - Gestures and feedback: `YumiPullToRefreshBox`, `YumiReorderableColumn` (rows 8 dp apart, `itemSpacing` to change) + `YumiDragHandle`, `YumiSwipeActions`, `YumiBanner`.

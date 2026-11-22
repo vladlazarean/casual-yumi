@@ -21,6 +21,7 @@ android {
 dependencies {
     api(project(":yumi-foundation"))
     implementation(libs.compose.animation.core)
+    implementation(libs.activity.compose)
 
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(libs.robolectric)

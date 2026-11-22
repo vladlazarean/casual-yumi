@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import dev.yumi.components.YumiBottomAppBar
 import dev.yumi.components.YumiButton
 import dev.yumi.components.YumiButtonVariant
 import dev.yumi.components.YumiCarousel
+import dev.yumi.components.YumiCard
 import dev.yumi.components.YumiDateRangePickerDialog
 import dev.yumi.components.YumiDragHandle
 import dev.yumi.components.YumiDropdownMenuItem
@@ -201,7 +203,16 @@ internal fun ExtrasSection() {
         }
         CatalogGroup("YumiReorderableColumn: drag a handle") {
             YumiReorderableColumn(items = order, onMove = { from, to -> order = order.toMutableList().apply { add(to, removeAt(from)) } }, itemKey = { it }) { item, handle ->
-                YumiListItem(headlineContent = { Text(item) }, trailingContent = { YumiDragHandle(handle) })
+                // Raised rows, like the playground: the whole row lifts while you drag its grip.
+                YumiCard(
+                    Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(start = 20.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                ) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(item, Modifier.weight(1f), style = YumiTheme.typography.titleSmall, color = YumiTheme.colors.ink)
+                        YumiDragHandle(handle)
+                    }
+                }
             }
         }
         CatalogGroup("YumiSwipeActions") {

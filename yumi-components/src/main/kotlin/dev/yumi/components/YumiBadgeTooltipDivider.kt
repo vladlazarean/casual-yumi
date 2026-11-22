@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import dev.yumi.foundation.YumiTheme
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,7 @@ public object YumiBadgeDefaults {
     public val DotSize: Dp = 8.dp
 
     /** Height of the count badge. */
-    public val CountHeight: Dp = 18.dp
+    public val CountHeight: Dp = 16.dp
 }
 
 /**
@@ -91,7 +92,7 @@ public fun YumiBadge(
         ) {
             Text(
                 if (count > maxCount) "$maxCount+" else count.toString(),
-                style = YumiTheme.typography.labelSmall.copy(textAlign = TextAlign.Center),
+                style = YumiTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 12.sp, textAlign = TextAlign.Center),
                 color = colors.onCharcoal,
                 maxLines = 1,
             )
@@ -103,7 +104,7 @@ public fun YumiBadge(
  * Anchors a [YumiBadge] to the top-end corner of [content] (an icon, a navigation icon).
  *
  * The badge is centred on the corner, so it sits mostly outside a 24 dp icon's glyph instead of
- * covering it: the dot on the very corner, a count badge nudged a little further out. Placement
+ * covering it, and stays clear of the edge of a round icon key. Placement
  * mirrors in RTL. The badge draws outside the box's bounds, like Material's.
  *
  * @param badge the badge.
@@ -127,9 +128,9 @@ public fun YumiBadgedBox(
         val badgePlaceable = measurables[1].measure(Constraints())
         val isDot = badgePlaceable.height <= YumiBadgeDefaults.DotSize.roundToPx()
         // Centre of the badge, relative to the anchor's top-end corner.
-        val outward = if (isDot) 0 else 2.dp.roundToPx()
-        val centreX = anchor.width + outward
-        val centreY = if (isDot) 0 else 1.dp.roundToPx()
+        // The count badge sits a touch lower so it stays inside a round 56 dp key.
+        val centreX = anchor.width
+        val centreY = if (isDot) 0 else 2.dp.roundToPx()
         layout(anchor.width, anchor.height) {
             anchor.placeRelative(0, 0)
             badgePlaceable.placeRelative(centreX - badgePlaceable.width / 2, centreY - badgePlaceable.height / 2, zIndex = 1f)

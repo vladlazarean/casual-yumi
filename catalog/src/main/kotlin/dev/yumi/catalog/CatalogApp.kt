@@ -1,5 +1,10 @@
 package dev.yumi.catalog
 
+import android.graphics.Color as AndroidColor
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -10,6 +15,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,9 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
@@ -53,9 +62,8 @@ import dev.yumi.tokens.YumiTokens
 private val FontScales = listOf(1f, 1.5f, 2f)
 
 /**
- * Catalog shell: every component, every state, with Putty / Graphite, accent, RTL and
- * font-scale toggles. Milestone 1 shows the foundation surfaces; component sections are added
- * per milestone.
+ * Catalog shell: every public component and its states, with Putty / Graphite, accent, RTL and
+ * font-scale toggles at the top.
  */
 @Composable
 fun CatalogApp() {
@@ -64,6 +72,17 @@ fun CatalogApp() {
     var accentIndex by rememberSaveable { mutableIntStateOf(0) }
     var rtl by rememberSaveable { mutableStateOf(false) }
     var fontScale by rememberSaveable { mutableFloatStateOf(1f) }
+
+    // Status and navigation bar icons follow the in-app theme, not the system one.
+    val activity = LocalActivity.current as? ComponentActivity
+    LaunchedEffect(dark, activity) {
+        val bars = if (dark) {
+            SystemBarStyle.dark(AndroidColor.TRANSPARENT)
+        } else {
+            SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+        }
+        activity?.enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+    }
 
     val baseDensity = LocalDensity.current
     CompositionLocalProvider(
@@ -91,9 +110,16 @@ fun CatalogApp() {
                                     CatalogToggle("Putty", selected = !dark) { dark = false }
                                     CatalogToggle("Graphite", selected = dark) { dark = true }
                                 }
-                                ToggleRow {
+                                Row(
+                                    Modifier.selectableGroup(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
                                     YumiAccent.presets.forEachIndexed { index, accent ->
-                                        CatalogToggle(accent.name, selected = index == accentIndex) { accentIndex = index }
+                                        AccentSwatch(
+                                            name = accent.name,
+                                            color = if (dark) accent.dark.accent else accent.light.accent,
+                                            selected = index == accentIndex,
+                                        ) { accentIndex = index }
                                     }
                                 }
                                 ToggleRow {
@@ -118,6 +144,7 @@ fun CatalogApp() {
                         item { AdvancedInputSection() }
                         item { NavigationSection() }
                         item { ExtrasSection() }
+                        item { ScreensSection() }
                     }
                     YumiToastHost(
                         hostState = toasts,
@@ -194,6 +221,39 @@ private fun DemoPebble(label: String, fill: Color, content: Color, enabled: Bool
             color = if (enabled) content else content.copy(alpha = YumiTokens.DisabledContentAlpha),
             style = YumiTheme.typography.labelLarge,
         )
+    }
+}
+
+/** Accent picker key: a round pebble with a dot of the accent colour; the chosen one rests sunk. */
+@Composable
+private fun AccentSwatch(name: String, color: Color, selected: Boolean, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val sink by animateSinkAsState(interactionSource, selected = selected)
+    Box(
+        Modifier
+            .size(48.dp)
+            .pebble(
+                color = YumiTheme.colors.raised,
+                shape = YumiTheme.shapes.icon,
+                seatColor = YumiTheme.colors.seat,
+                depth = YumiTheme.depth,
+                sinkOffset = YumiTheme.motion.sinkOffset,
+                sink = { sink },
+            )
+            .pebbleClickable(
+                interactionSource = interactionSource,
+                enabled = true,
+                role = Role.RadioButton,
+                haptics = YumiTheme.haptics,
+                onClick = onClick,
+            )
+            .semantics {
+                this.selected = selected
+                contentDescription = "$name accent"
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.size(18.dp).background(color, YumiTheme.shapes.pill))
     }
 }
 

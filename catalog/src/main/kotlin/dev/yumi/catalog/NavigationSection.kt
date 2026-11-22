@@ -18,8 +18,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import dev.yumi.components.YumiDropdownMenu
 import dev.yumi.components.YumiDropdownMenuItem
@@ -39,6 +37,7 @@ import dev.yumi.foundation.YumiTheme
 import kotlinx.coroutines.launch
 
 private val Destinations = listOf("Alarms", "Outlook", "Settings")
+private val DestinationIcons = listOf(CatalogIcons.Alarm, CatalogIcons.Cloud, CatalogIcons.Settings)
 private val InitialAlarms = listOf("06:45 · Gym", "07:30 · Weekdays", "09:00 · Weekend")
 
 @Composable
@@ -60,7 +59,7 @@ internal fun NavigationSection() {
             actions = {
                 Box {
                     YumiIconButton(onClick = { menuOpen = true }) {
-                        Text("⋯", Modifier.clearAndSetSemantics { contentDescription = "More options" })
+                        CatalogIcon(CatalogIcons.More, "More options")
                     }
                     YumiDropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         YumiDropdownMenuItem(text = { Text("Sort by time") }, onClick = { menuOpen = false })
@@ -118,7 +117,7 @@ internal fun NavigationSection() {
                 YumiNavigationBarItem(
                     selected = destination == i,
                     onClick = { destination = i },
-                    icon = { Text(label.take(1), style = YumiTheme.typography.titleMedium) },
+                    icon = { CatalogIcon(DestinationIcons[i], null) },
                     label = { Text(label) },
                 )
             }
@@ -130,7 +129,7 @@ internal fun NavigationSection() {
                     YumiNavigationRailItem(
                         selected = destination == i,
                         onClick = { destination = i },
-                        icon = { Text(label.take(1), style = YumiTheme.typography.titleMedium) },
+                        icon = { CatalogIcon(DestinationIcons[i], null) },
                         label = { Text(label) },
                     )
                 }

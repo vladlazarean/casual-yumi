@@ -25,8 +25,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
 import dev.yumi.components.YumiAvatar
 import dev.yumi.components.YumiBadge
@@ -62,6 +61,7 @@ import dev.yumi.components.YumiSwipeActions
 import dev.yumi.components.YumiSwitch
 import dev.yumi.components.YumiTextButton
 import dev.yumi.components.YumiTooltipBox
+import dev.yumi.components.YumiVerticalDivider
 import dev.yumi.foundation.YumiTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -78,6 +78,7 @@ internal fun ExtrasSection() {
     var muted by rememberSaveable { mutableStateOf(false) }
     var rating by rememberSaveable { mutableIntStateOf(4) }
     var advancedOpen by rememberSaveable { mutableStateOf(false) }
+    var vibrateFirst by rememberSaveable { mutableStateOf(true) }
     var loading by rememberSaveable { mutableStateOf(true) }
     var refreshing by rememberSaveable { mutableStateOf(false) }
     var refreshCount by rememberSaveable { mutableIntStateOf(0) }
@@ -102,14 +103,15 @@ internal fun ExtrasSection() {
             YumiTooltipBox(text = "Notifications") {
                 YumiIconButton(onClick = {}) {
                     YumiBadgedBox(badge = { YumiBadge(count = 3) }) {
-                        Text("◎", Modifier.clearAndSetSemantics { contentDescription = "Notifications" })
+                        CatalogIcon(CatalogIcons.Bell, "Notifications")
                     }
                 }
             }
+            YumiVerticalDivider(Modifier.height(32.dp))
             YumiRichTooltipBox(title = "Smart snooze", text = "Snooze length adapts to how long you slept.", actionLabel = "Got it") {
                 YumiIconButton(onClick = {}) {
                     YumiBadgedBox(badge = { YumiBadge() }) {
-                        Text("?", Modifier.clearAndSetSemantics { contentDescription = "What's new" })
+                        CatalogIcon(CatalogIcons.Info, "What's new")
                     }
                 }
             }
@@ -121,7 +123,7 @@ internal fun ExtrasSection() {
         YumiMultiChoiceSegmentedButtonRow(options = Weekdays, selected = days, onSelectionChange = { days = it }) { Text(it.take(1)) }
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
             YumiIconToggleButton(checked = muted, onCheckedChange = { muted = it }) {
-                Text(if (muted) "🔇" else "🔈", Modifier.clearAndSetSemantics { contentDescription = "Mute" })
+                CatalogIcon(if (muted) CatalogIcons.VolumeOff else CatalogIcons.VolumeOn, "Mute")
             }
             YumiSplitButton(
                 onClick = { scope.launch { toasts.show("Snoozed 9 min") } },
@@ -140,13 +142,13 @@ internal fun ExtrasSection() {
 
         Label("Content")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            YumiAvatar(initials = "VB", contentDescription = "Vlad", online = true)
-            YumiAvatar(initials = "AY", contentDescription = "Ana", size = 56.dp, online = false)
+            YumiAvatar(initials = "VL", contentDescription = "Vlad, online", online = true)
+            YumiAvatar(initials = "AY", contentDescription = "Ana, away", size = 56.dp, online = false)
         }
         YumiExpandableSection(title = { Text("Advanced options") }, expanded = advancedOpen, onExpandedChange = { advancedOpen = it }) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text("Vibrate first", Modifier.weight(1f))
-                YumiSwitch(checked = true, onCheckedChange = null)
+                YumiSwitch(checked = vibrateFirst, onCheckedChange = { vibrateFirst = it })
             }
         }
         if (loading) {
@@ -197,7 +199,8 @@ internal fun ExtrasSection() {
             YumiButton(onClick = { scope.launch { drawerState.open() } }) { Text("Open drawer") }
             YumiButton(onClick = { sideSheet = true }) { Text("Side sheet") }
         }
-        Box(Modifier.fillMaxWidth().height(320.dp)) {
+        // Clip so the closed drawer's edge and shadow stay inside the demo box.
+        Box(Modifier.fillMaxWidth().height(320.dp).clipToBounds()) {
             YumiModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
@@ -220,10 +223,10 @@ internal fun ExtrasSection() {
                         Text("Drawer destination: $drawerPick", color = YumiTheme.colors.muted)
                     }
                     YumiBottomAppBar(windowInsets = WindowInsets(0), floatingActionButton = {
-                        YumiFab(onClick = { scope.launch { toasts.show("New alarm") } }) { Text("+") }
+                        YumiFab(onClick = { scope.launch { toasts.show("New alarm") } }) { CatalogIcon(CatalogIcons.Add, "New alarm") }
                     }) {
-                        YumiTextButton(onClick = { scope.launch { drawerState.open() } }) { Text("Menu") }
-                        YumiTextButton(onClick = {}) { Text("Search") }
+                        YumiIconButton(onClick = { scope.launch { drawerState.open() } }) { CatalogIcon(CatalogIcons.Menu, "Menu") }
+                        YumiIconButton(onClick = { scope.launch { toasts.show("Search") } }) { CatalogIcon(CatalogIcons.Search, "Search") }
                     }
                 }
             }

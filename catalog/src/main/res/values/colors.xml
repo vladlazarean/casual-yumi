@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Putty body; Graphite in values-night. Matches YumiTokens. -->
+    <color name="catalog_body">#E4E1DC</color>
+    <color name="catalog_body_light">#E4E1DC</color>
+</resources>

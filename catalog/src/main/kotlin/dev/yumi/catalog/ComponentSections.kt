@@ -17,8 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import dev.yumi.components.YumiButton
@@ -28,6 +27,7 @@ import dev.yumi.components.YumiCheckbox
 import dev.yumi.components.YumiFab
 import dev.yumi.components.YumiIconButton
 import dev.yumi.components.YumiLed
+import dev.yumi.components.YumiRadioButton
 import dev.yumi.components.YumiRadioGroup
 import dev.yumi.components.YumiSlider
 import dev.yumi.components.YumiSwitch
@@ -49,10 +49,8 @@ internal fun ButtonsSection() {
             YumiButton(onClick = {}, enabled = false) { Text("Disabled") }
         }
         CatalogFlow {
-            YumiIconButton(onClick = { presses++ }) {
-                Text("+", Modifier.clearAndSetSemantics { contentDescription = "Add" })
-            }
-            YumiFab(onClick = { presses++ }) { Text("Go") }
+            YumiIconButton(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Add, "Add") }
+            YumiFab(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Alarm, "New alarm") }
             YumiTextButton(onClick = { presses++ }) { Text("Text button") }
             YumiToggleButton(checked = latched, onCheckedChange = { latched = it }) { Text("Latch") }
         }
@@ -62,29 +60,40 @@ internal fun ButtonsSection() {
 
 @Composable
 internal fun SelectionSection() {
-    var checked by rememberSaveable { mutableStateOf(true) }
+    var rain by rememberSaveable { mutableStateOf(true) }
     var parent by rememberSaveable { mutableStateOf(ToggleableState.Indeterminate) }
     var switchOn by rememberSaveable { mutableStateOf(true) }
-    var theme by rememberSaveable { mutableStateOf("Graphite") }
+    var sound by rememberSaveable { mutableStateOf("Chime") }
+    var volume by rememberSaveable { mutableStateOf("Soft") }
     CatalogSection("Selection") {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            YumiCheckbox(checked = checked, onCheckedChange = { checked = it })
-            YumiTriStateCheckbox(
-                state = parent,
-                onClick = {
-                    parent = if (parent == ToggleableState.On) ToggleableState.Off else ToggleableState.On
-                },
-            )
-            YumiCheckbox(checked = true, onCheckedChange = {}, enabled = false)
-            YumiSwitch(checked = switchOn, onCheckedChange = { switchOn = it })
-            YumiSwitch(checked = false, onCheckedChange = {}, enabled = false)
+        CatalogFlow {
+            Labeled("Rain") { YumiCheckbox(checked = rain, onCheckedChange = { rain = it }) }
+            Labeled("All days") {
+                YumiTriStateCheckbox(
+                    state = parent,
+                    onClick = { parent = if (parent == ToggleableState.On) ToggleableState.Off else ToggleableState.On },
+                )
+            }
+            Labeled("Locked") { YumiCheckbox(checked = true, onCheckedChange = {}, enabled = false) }
         }
+        CatalogFlow {
+            Labeled("Alarm armed") { YumiSwitch(checked = switchOn, onCheckedChange = { switchOn = it }) }
+            Labeled("Disabled") { YumiSwitch(checked = false, onCheckedChange = {}, enabled = false) }
+        }
+        Label("YumiRadioGroup")
         YumiRadioGroup(
-            options = listOf("Putty", "Graphite", "Follow system"),
-            selected = theme,
-            onSelect = { theme = it },
+            options = listOf("Chime", "Bell", "Birds"),
+            selected = sound,
+            onSelect = { sound = it },
             modifier = Modifier.fillMaxWidth(),
         ) { Text(it) }
+        Label("YumiRadioButton on its own")
+        CatalogFlow {
+            listOf("Soft", "Loud").forEach { option ->
+                Labeled(option) { YumiRadioButton(selected = volume == option, onClick = { volume = option }) }
+            }
+            Labeled("Disabled") { YumiRadioButton(selected = false, onClick = {}, enabled = false) }
+        }
     }
 }
 
@@ -139,6 +148,24 @@ private fun CatalogFlow(content: @Composable () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
         itemVerticalAlignment = Alignment.CenterVertically,
     ) { content() }
+}
+
+/** A control with its text label; both read out together. */
+@Composable
+private fun Labeled(label: String, control: @Composable () -> Unit) {
+    Row(
+        Modifier.semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        control()
+        Text(label, color = YumiTheme.colors.ink, style = YumiTheme.typography.bodyMedium)
+    }
+}
+
+@Composable
+private fun Label(text: String) {
+    Text(text, style = YumiTheme.typography.labelMedium, color = YumiTheme.colors.muted)
 }
 
 @Composable

@@ -12,12 +12,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.dp
@@ -47,10 +48,8 @@ internal fun ScreensSection() {
     var armed by rememberSaveable { mutableStateOf(true) }
     var snackbarShown by rememberSaveable { mutableStateOf(true) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Screens", style = YumiTheme.typography.titleLarge, color = YumiTheme.colors.ink)
-
-        Label("YumiScaffold: top bar, bottom bar, FAB and its own toast host")
+    CatalogSection("Screens") {
+        CatalogGroup("YumiScaffold: top bar, bottom bar, FAB and its own toast host") {
         Box(Modifier.fillMaxWidth().height(420.dp).clipToBounds()) {
             YumiScaffold(
                 topBar = { YumiTopAppBar(title = { Text(Tabs[tab].first) }, windowInsets = WindowInsets(0)) },
@@ -85,7 +84,9 @@ internal fun ScreensSection() {
             }
         }
 
-        Label("YumiBottomSheetScaffold: drag the sheet up")
+        }
+
+        CatalogGroup("YumiBottomSheetScaffold: drag the sheet up") {
         Box(Modifier.fillMaxWidth().height(360.dp).clipToBounds()) {
             YumiBottomSheetScaffold(
                 sheetContent = {
@@ -103,8 +104,10 @@ internal fun ScreensSection() {
             }
         }
 
-        Label("YumiToast and YumiSnackbar without a host")
-        YumiToast(message = "Alarm saved")
+        }
+
+        CatalogGroup("YumiToast and YumiSnackbar without a host") {
+        YumiToast(message = "Alarm saved", modifier = Modifier.align(Alignment.CenterHorizontally))
         if (snackbarShown) {
             YumiSnackbar(
                 message = "Couldn't reach the server. Showing the last saved data.",
@@ -116,10 +119,6 @@ internal fun ScreensSection() {
         } else {
             YumiTextButton(onClick = { snackbarShown = true }) { Text("Show the snackbar again") }
         }
+        }
     }
-}
-
-@Composable
-private fun Label(text: String) {
-    Text(text, style = YumiTheme.typography.labelMedium, color = YumiTheme.colors.muted)
 }

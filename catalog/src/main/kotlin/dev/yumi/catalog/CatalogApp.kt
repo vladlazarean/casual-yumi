@@ -11,16 +11,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -28,15 +22,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -99,37 +93,42 @@ fun CatalogApp() {
                             .background(YumiTheme.colors.body)
                             .safeDrawingPadding(),
                         contentPadding = PaddingValues(24.dp),
-                        verticalArrangement = Arrangement.spacedBy(28.dp),
+                        verticalArrangement = Arrangement.spacedBy(CatalogSpacing.Section),
                     ) {
                         item {
                             Text("Casual Yumi", style = YumiTheme.typography.headlineMedium, color = YumiTheme.colors.ink)
                         }
                         item {
-                            Section("Theme") {
-                                ToggleRow {
-                                    CatalogToggle("Putty", selected = !dark) { dark = false }
-                                    CatalogToggle("Graphite", selected = dark) { dark = true }
-                                }
-                                Row(
-                                    Modifier.selectableGroup(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                ) {
-                                    YumiAccent.presets.forEachIndexed { index, accent ->
-                                        AccentSwatch(
-                                            name = accent.name,
-                                            color = if (dark) accent.dark.accent else accent.light.accent,
-                                            selected = index == accentIndex,
-                                        ) { accentIndex = index }
+                            CatalogSection("Theme") {
+                                CatalogGroup("Palette") {
+                                    CatalogFlow {
+                                        CatalogToggle("Putty", selected = !dark) { dark = false }
+                                        CatalogToggle("Graphite", selected = dark) { dark = true }
                                     }
                                 }
-                                ToggleRow {
-                                    CatalogToggle("LTR", selected = !rtl) { rtl = false }
-                                    CatalogToggle("RTL", selected = rtl) { rtl = true }
+                                CatalogGroup("Accent: ${YumiAccent.presets[accentIndex].name}") {
+                                    CatalogFlow(Modifier.selectableGroup()) {
+                                        YumiAccent.presets.forEachIndexed { index, accent ->
+                                            AccentSwatch(
+                                                name = accent.name,
+                                                color = if (dark) accent.dark.accent else accent.light.accent,
+                                                selected = index == accentIndex,
+                                            ) { accentIndex = index }
+                                        }
+                                    }
                                 }
-                                ToggleRow {
-                                    FontScales.forEach { scale ->
-                                        CatalogToggle("${(scale * 100).toInt()} %", selected = fontScale == scale) {
-                                            fontScale = scale
+                                CatalogGroup("Layout direction") {
+                                    CatalogFlow {
+                                        CatalogToggle("LTR", selected = !rtl) { rtl = false }
+                                        CatalogToggle("RTL", selected = rtl) { rtl = true }
+                                    }
+                                }
+                                CatalogGroup("Font size") {
+                                    CatalogFlow {
+                                        FontScales.forEach { scale ->
+                                            CatalogToggle("${(scale * 100).toInt()} %", selected = fontScale == scale) {
+                                                fontScale = scale
+                                            }
                                         }
                                     }
                                 }
@@ -158,35 +157,29 @@ fun CatalogApp() {
 
 @Composable
 private fun FoundationSection() {
-    Section("Foundation") {
-        Label("Modifier.pebble(): raised, you press it")
-        ToggleRow {
-            DemoPebble("Neutral", YumiTheme.colors.raised, YumiTheme.colors.ink)
-            DemoPebble("Accent", YumiTheme.colors.accent, YumiTheme.colors.onAccent)
-            DemoPebble("Charcoal", YumiTheme.colors.charcoal, YumiTheme.colors.onCharcoal)
-            DemoPebble("Disabled", YumiTheme.colors.raised, YumiTheme.colors.ink, enabled = false)
-        }
-        Spacer(Modifier.height(8.dp))
-        Label("Modifier.tray(): recessed, you read it")
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .tray(YumiTheme.colors.tray, YumiTheme.shapes.tray, YumiTheme.depth)
-                .padding(20.dp),
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Ink on tray", color = YumiTheme.colors.ink, style = YumiTheme.typography.titleMedium)
-                Text("Muted on tray", color = YumiTheme.colors.muted, style = YumiTheme.typography.bodyMedium)
-                Text("Accent ink on tray", color = YumiTheme.colors.accentInk, style = YumiTheme.typography.bodyMedium)
+    CatalogSection("Foundation") {
+        CatalogGroup("Modifier.pebble(): raised, you press it") {
+            CatalogFlow {
+                DemoPebble("Neutral", YumiTheme.colors.raised, YumiTheme.colors.ink)
+                DemoPebble("Accent", YumiTheme.colors.accent, YumiTheme.colors.onAccent)
+                DemoPebble("Charcoal", YumiTheme.colors.charcoal, YumiTheme.colors.onCharcoal)
+                DemoPebble("Disabled", YumiTheme.colors.raised, YumiTheme.colors.ink, enabled = false)
             }
         }
-        Spacer(Modifier.height(8.dp))
-        Label("LED")
-        Box(
-            Modifier
-                .size(width = 14.dp, height = 5.dp)
-                .background(YumiTheme.colors.accent, YumiTheme.shapes.pill),
-        )
+        CatalogGroup("Modifier.tray(): recessed, you read it") {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .tray(YumiTheme.colors.tray, YumiTheme.shapes.tray, YumiTheme.depth)
+                    .padding(20.dp),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Ink on tray", color = YumiTheme.colors.ink, style = YumiTheme.typography.titleMedium)
+                    Text("Muted on tray", color = YumiTheme.colors.muted, style = YumiTheme.typography.bodyMedium)
+                    Text("Accent ink on tray", color = YumiTheme.colors.accentInk, style = YumiTheme.typography.bodyMedium)
+                }
+            }
+        }
     }
 }
 
@@ -290,26 +283,4 @@ private fun CatalogToggle(label: String, selected: Boolean, onClick: () -> Unit)
             style = YumiTheme.typography.labelLarge,
         )
     }
-}
-
-@Composable
-private fun Section(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(title, style = YumiTheme.typography.titleLarge, color = YumiTheme.colors.ink)
-        content()
-    }
-}
-
-@Composable
-private fun Label(text: String) {
-    Text(text, style = YumiTheme.typography.labelMedium, color = YumiTheme.colors.muted)
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ToggleRow(content: @Composable () -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) { content() }
 }

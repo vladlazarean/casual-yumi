@@ -2,22 +2,16 @@ package dev.yumi.catalog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import dev.yumi.components.YumiButton
@@ -42,19 +36,23 @@ internal fun ButtonsSection() {
     var presses by rememberSaveable { mutableIntStateOf(0) }
     var latched by rememberSaveable { mutableStateOf(true) }
     CatalogSection("Buttons") {
-        CatalogFlow {
-            YumiButton(onClick = { presses++ }, variant = YumiButtonVariant.Accent) { Text("Accent") }
-            YumiButton(onClick = { presses++ }, onLongClick = { presses += 10 }) { Text("Neutral") }
-            YumiButton(onClick = { presses++ }, variant = YumiButtonVariant.Charcoal) { Text("Charcoal") }
-            YumiButton(onClick = {}, enabled = false) { Text("Disabled") }
+        CatalogGroup("YumiButton: Accent, Neutral, Charcoal") {
+            CatalogFlow {
+                YumiButton(onClick = { presses++ }, variant = YumiButtonVariant.Accent) { Text("Accent") }
+                YumiButton(onClick = { presses++ }, onLongClick = { presses += 10 }) { Text("Neutral") }
+                YumiButton(onClick = { presses++ }, variant = YumiButtonVariant.Charcoal) { Text("Charcoal") }
+                YumiButton(onClick = {}, enabled = false) { Text("Disabled") }
+            }
+            CatalogNote("Presses: $presses (long-press Neutral adds 10)")
         }
-        CatalogFlow {
-            YumiIconButton(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Add, "Add") }
-            YumiFab(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Alarm, "New alarm") }
-            YumiTextButton(onClick = { presses++ }) { Text("Text button") }
-            YumiToggleButton(checked = latched, onCheckedChange = { latched = it }) { Text("Latch") }
+        CatalogGroup("Icon button, FAB, text button, latch") {
+            CatalogFlow {
+                YumiIconButton(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Add, "Add") }
+                YumiFab(onClick = { presses++ }) { CatalogIcon(CatalogIcons.Alarm, "New alarm") }
+                YumiTextButton(onClick = { presses++ }) { Text("Text button") }
+                YumiToggleButton(checked = latched, onCheckedChange = { latched = it }) { Text("Latch") }
+            }
         }
-        CatalogNote("Presses: $presses (long-press Neutral adds 10)")
     }
 }
 
@@ -66,33 +64,39 @@ internal fun SelectionSection() {
     var sound by rememberSaveable { mutableStateOf("Chime") }
     var volume by rememberSaveable { mutableStateOf("Soft") }
     CatalogSection("Selection") {
-        CatalogFlow {
-            Labeled("Rain") { YumiCheckbox(checked = rain, onCheckedChange = { rain = it }) }
-            Labeled("All days") {
-                YumiTriStateCheckbox(
-                    state = parent,
-                    onClick = { parent = if (parent == ToggleableState.On) ToggleableState.Off else ToggleableState.On },
-                )
+        CatalogGroup("Checkboxes") {
+            CatalogFlow {
+                Labeled("Rain") { YumiCheckbox(checked = rain, onCheckedChange = { rain = it }) }
+                Labeled("All days") {
+                    YumiTriStateCheckbox(
+                        state = parent,
+                        onClick = { parent = if (parent == ToggleableState.On) ToggleableState.Off else ToggleableState.On },
+                    )
+                }
+                Labeled("Locked") { YumiCheckbox(checked = true, onCheckedChange = {}, enabled = false) }
             }
-            Labeled("Locked") { YumiCheckbox(checked = true, onCheckedChange = {}, enabled = false) }
         }
-        CatalogFlow {
-            Labeled("Alarm armed") { YumiSwitch(checked = switchOn, onCheckedChange = { switchOn = it }) }
-            Labeled("Disabled") { YumiSwitch(checked = false, onCheckedChange = {}, enabled = false) }
-        }
-        Label("YumiRadioGroup")
-        YumiRadioGroup(
-            options = listOf("Chime", "Bell", "Birds"),
-            selected = sound,
-            onSelect = { sound = it },
-            modifier = Modifier.fillMaxWidth(),
-        ) { Text(it) }
-        Label("YumiRadioButton on its own")
-        CatalogFlow {
-            listOf("Soft", "Loud").forEach { option ->
-                Labeled(option) { YumiRadioButton(selected = volume == option, onClick = { volume = option }) }
+        CatalogGroup("Switches") {
+            CatalogFlow {
+                Labeled("Alarm armed") { YumiSwitch(checked = switchOn, onCheckedChange = { switchOn = it }) }
+                Labeled("Disabled") { YumiSwitch(checked = false, onCheckedChange = {}, enabled = false) }
             }
-            Labeled("Disabled") { YumiRadioButton(selected = false, onClick = {}, enabled = false) }
+        }
+        CatalogGroup("YumiRadioGroup") {
+            YumiRadioGroup(
+                options = listOf("Chime", "Bell", "Birds"),
+                selected = sound,
+                onSelect = { sound = it },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(it) }
+        }
+        CatalogGroup("YumiRadioButton on its own") {
+            CatalogFlow {
+                listOf("Soft", "Loud").forEach { option ->
+                    Labeled(option) { YumiRadioButton(selected = volume == option, onClick = { volume = option }) }
+                }
+                Labeled("Disabled") { YumiRadioButton(selected = false, onClick = {}, enabled = false) }
+            }
         }
     }
 }
@@ -102,10 +106,15 @@ internal fun SliderSection() {
     var continuous by rememberSaveable { mutableFloatStateOf(0.4f) }
     var stepped by rememberSaveable { mutableFloatStateOf(0.5f) }
     CatalogSection("Slider") {
-        YumiSlider(value = continuous, onValueChange = { continuous = it })
-        YumiSlider(value = stepped, onValueChange = { stepped = it }, steps = 4)
-        YumiSlider(value = 0.7f, onValueChange = {}, enabled = false)
-        CatalogNote("Stepped: ${(stepped * 100).toInt()} %, haptic tick on every step")
+        CatalogGroup("Continuous") {
+            YumiSlider(value = continuous, onValueChange = { continuous = it })
+        }
+        CatalogGroup("Stepped: ${(stepped * 100).toInt()} %, a haptic tick on every step") {
+            YumiSlider(value = stepped, onValueChange = { stepped = it }, steps = 4)
+        }
+        CatalogGroup("Disabled") {
+            YumiSlider(value = 0.7f, onValueChange = {}, enabled = false)
+        }
     }
 }
 
@@ -113,62 +122,27 @@ internal fun SliderSection() {
 internal fun SurfacesSection() {
     var armed by rememberSaveable { mutableStateOf(true) }
     CatalogSection("Tray, card, LED") {
-        YumiTray(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                YumiLed(on = armed, contentDescription = if (armed) "Armed" else "Off")
-                Text(if (armed) "Armed" else "Off", color = YumiTheme.colors.muted)
+        CatalogGroup("YumiTray and YumiLed: recessed, read only") {
+            YumiTray(Modifier.fillMaxWidth()) {
+                CatalogRow {
+                    YumiLed(on = armed, contentDescription = if (armed) "Armed" else "Off")
+                    Text(if (armed) "Armed" else "Off", color = YumiTheme.colors.muted)
+                }
+                Text("07:30", style = YumiTheme.typography.displaySmall)
+                YumiTextButton(onClick = { armed = !armed }) { Text(if (armed) "Disarm" else "Arm") }
             }
-            Text("07:30", style = YumiTheme.typography.displaySmall)
-            YumiTextButton(onClick = { armed = !armed }) { Text(if (armed) "Disarm" else "Arm") }
         }
-        YumiCard(Modifier.fillMaxWidth()) {
-            Text("Raised card", style = YumiTheme.typography.titleMedium)
-            Text("A pebble inside a card renders flat: one depth.", color = YumiTheme.colors.muted)
-            YumiButton(onClick = {}) { Text("Flat key") }
-        }
-        YumiCard(onClick = {}, onLongClick = {}, modifier = Modifier.fillMaxWidth()) {
-            Text("Clickable card: the whole card sinks", style = YumiTheme.typography.titleMedium)
+        CatalogGroup("YumiCard") {
+            YumiCard(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Raised card", style = YumiTheme.typography.titleMedium)
+                    Text("A key inside a card draws flat: one depth.", color = YumiTheme.colors.muted)
+                }
+                YumiButton(onClick = {}) { Text("Flat key") }
+            }
+            YumiCard(onClick = {}, onLongClick = {}, modifier = Modifier.fillMaxWidth()) {
+                Text("Clickable card: the whole card sinks", style = YumiTheme.typography.titleMedium)
+            }
         }
     }
-}
-
-@Composable
-private fun CatalogSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text(title, style = YumiTheme.typography.titleLarge, color = YumiTheme.colors.ink)
-        content()
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun CatalogFlow(content: @Composable () -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        itemVerticalAlignment = Alignment.CenterVertically,
-    ) { content() }
-}
-
-/** A control with its text label; both read out together. */
-@Composable
-private fun Labeled(label: String, control: @Composable () -> Unit) {
-    Row(
-        Modifier.semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        control()
-        Text(label, color = YumiTheme.colors.ink, style = YumiTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-private fun Label(text: String) {
-    Text(text, style = YumiTheme.typography.labelMedium, color = YumiTheme.colors.muted)
-}
-
-@Composable
-private fun CatalogNote(text: String) {
-    Text(text, style = YumiTheme.typography.bodySmall, color = YumiTheme.colors.muted)
 }

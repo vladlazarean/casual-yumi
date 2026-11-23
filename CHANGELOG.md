@@ -33,7 +33,7 @@ First public preview. Everything below is new. While the version starts with 0, 
 - Structure: `YumiScaffold`, `YumiModalNavigationDrawer` + `YumiNavigationDrawerItem`, `YumiBottomAppBar`, `YumiModalSideSheet` (over the whole window, or inside its parent with `fullScreen = false`), `YumiBottomSheetScaffold`.
 - Input: `YumiSelectField`, `YumiDateRangePickerDialog`, `YumiMultiChoiceSegmentedButtonRow`, `YumiIconToggleButton`, `YumiSplitButton`, `YumiRatingBar`.
 - Content: `YumiAvatar`, `YumiSkeleton`, `YumiSkeletonLines`, `YumiEmptyState`, `YumiExpandableSection`, `YumiCarousel`, `YumiPagerIndicator`.
-- Gestures and feedback: `YumiPullToRefreshBox`, `YumiReorderableColumn` (rows 8 dp apart, `itemSpacing` to change) + `YumiDragHandle`, `YumiSwipeActions`, `YumiBanner`.
+- Gestures and feedback: `YumiPullToRefreshBox`, `YumiReorderableColumn` (rows 8 dp apart, `itemSpacing` to change; `itemShape` so the lifted row keeps your row's outline) + `YumiDragHandle`, `YumiSwipeActions`, `YumiBanner`.
 
 ### Known limitations
 - `YumiReorderableColumn` composes rows eagerly; use it for short lists, not long `LazyColumn`s.

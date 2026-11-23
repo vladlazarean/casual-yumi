@@ -59,6 +59,7 @@ import dev.yumi.components.YumiSkeletonLines
 import dev.yumi.components.YumiSplitButton
 import dev.yumi.components.YumiSwipeAction
 import dev.yumi.components.YumiSwipeActions
+import dev.yumi.components.YumiSurfaceDefaults
 import dev.yumi.components.YumiSwitch
 import dev.yumi.components.YumiTextButton
 import dev.yumi.components.YumiTooltipBox
@@ -202,7 +203,12 @@ internal fun ExtrasSection() {
             }
         }
         CatalogGroup("YumiReorderableColumn: drag a handle") {
-            YumiReorderableColumn(items = order, onMove = { from, to -> order = order.toMutableList().apply { add(to, removeAt(from)) } }, itemKey = { it }) { item, handle ->
+            YumiReorderableColumn(
+                items = order,
+                onMove = { from, to -> order = order.toMutableList().apply { add(to, removeAt(from)) } },
+                itemKey = { it },
+                itemShape = YumiSurfaceDefaults.cardShape,
+            ) { item, handle ->
                 // Raised rows, like the playground: the whole row lifts while you drag its grip.
                 YumiCard(
                     Modifier.fillMaxWidth(),

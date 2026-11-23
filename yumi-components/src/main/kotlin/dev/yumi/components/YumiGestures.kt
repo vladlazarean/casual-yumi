@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -161,6 +162,8 @@ public object YumiReorderableDefaults {
  * @param modifier modifier for the column.
  * @param itemSpacing gap between rows; a dragged row swaps once it passes half a neighbour plus
  * this gap.
+ * @param itemShape the rows' outline. The dragged row's lift shadow and backing follow it, so pass
+ * your row's shape (for example `YumiSurfaceDefaults.cardShape` for [YumiCard] rows).
  * @param itemContent one row; apply `handle` to the drag handle, e.g. [YumiDragHandle].
  */
 @Composable
@@ -170,6 +173,7 @@ public fun <T> YumiReorderableColumn(
     itemKey: (T) -> Any,
     modifier: Modifier = Modifier,
     itemSpacing: Dp = YumiReorderableDefaults.ItemSpacing,
+    itemShape: Shape = YumiTheme.shapes.small,
     itemContent: @Composable (item: T, handle: Modifier) -> Unit,
 ) {
     val haptics = YumiTheme.haptics
@@ -181,7 +185,7 @@ public fun <T> YumiReorderableColumn(
     val moveUp = stringResource(R.string.yumi_move_up)
     val moveDown = stringResource(R.string.yumi_move_down)
     val handleLabel = stringResource(R.string.yumi_reorder_handle)
-    val liftShape = YumiTheme.shapes.small
+    val liftShape = itemShape
     val liftAlpha = YumiTheme.depth.shadowAlpha
     // A swap moves the row by the neighbour's height plus one gap, so the threshold includes it.
     val spacingPx = with(LocalDensity.current) { itemSpacing.toPx() }
